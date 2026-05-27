@@ -13,6 +13,11 @@ size_t VS_active_vlut_stride;
 
 struct VS_RECENT_VLUT VS_RECENT_VLUT;
 
+void VS__free_recent_vlut(void) {
+    for (int i = 0; i < VS_RECENT_VLUT.max_keys; i++) 
+    if (VS_RECENT_VLUT.table[i]) free(VS_RECENT_VLUT.table[i]);
+}
+
 _Noreturn void VERLET_VLUT_exit(void) {
     printf("\033[31m<! VLUT case is not registered. !>\033[0m");
     exit(-1);

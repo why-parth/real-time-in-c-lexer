@@ -35,6 +35,8 @@ extern char __charclass_extend_esc_a[4];
 
 extern struct VS_RECENT_VLUT VS_RECENT_VLUT;
 
+void VS__free_recent_vlut(void);
+
 #ifndef VS_RECENT_VLUT_MAX
 #define VS_RECENT_VLUT_MAX
 #define VS_RECENT_VLUT_MAX_KEYS 8
@@ -50,6 +52,7 @@ extern struct VS_RECENT_VLUT VS_RECENT_VLUT;
 #endif
 
 #define new_vlut                                                                                    \
+    VS__free_recent_vlut();                                                                         \
     VS_RECENT_VLUT.n_keys = 0;                                                                      \
     VS_RECENT_VLUT.n_values = 0;                                                                    \
     VS_RECENT_VLUT.max_keys = VS_RECENT_VLUT_MAX_KEYS;                                              \
@@ -203,7 +206,8 @@ void __VS_VLUT_print   (
             VS_RECENT_VLUT.table[i],                                    \
             ((int)(VS_RECENT_VLUT.table[i][1] + 2))*sizeof(avsme)       \
         );                                                              \
-    }
+    }                                                                   \
+    VS__free_recent_vlut()
 
 extern size_t VS_active_vlut_n_keys;
 extern avsme * VS_active_vlut_table;
