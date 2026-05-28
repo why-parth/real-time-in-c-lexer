@@ -4,6 +4,9 @@ Verlet Lexer is a C framework that enables token recognition. It is commonly ref
 
 A lexer is any implementation that breaks down text data into fragmented data, into fragments called _tokens_. Verlet Lexer does the same but in a highly modifiable manner, being a C framework, it integrates with C to provide system level control along with token recognition which allows the making-of compilers, _transpilers_, interpreters, anything that relies on token recognition.
 
+![Example Code](test-img.png)
+![Example Code Output](test-out.png)
+
 ## Token Recognition in Verlet Lexer
 Token reading in Vlex can be understood as reading a text _( an ASCII char buffer )_ char by char and for each char _( selected char )_, scanning the next char _( target char )_. Then we compare the selected char and the target char to see if it should either _join_ or _vary_.
 

@@ -52,11 +52,11 @@ void VS__free_recent_vlut(void);
 #endif
 
 #define new_vlut                                                                                    \
-    VS__free_recent_vlut();                                                                         \
-    VS_RECENT_VLUT.n_keys = 0;                                                                      \
-    VS_RECENT_VLUT.n_values = 0;                                                                    \
-    VS_RECENT_VLUT.max_keys = VS_RECENT_VLUT_MAX_KEYS;                                              \
-    VS_RECENT_VLUT.max_values = VS_RECENT_VLUT_MAX_VALUES;                                          \
+    VS__free_recent_vlut(),                                                                         \
+    VS_RECENT_VLUT.n_keys = 0,                                                                      \
+    VS_RECENT_VLUT.n_values = 0,                                                                    \
+    VS_RECENT_VLUT.max_keys = VS_RECENT_VLUT_MAX_KEYS,                                              \
+    VS_RECENT_VLUT.max_values = VS_RECENT_VLUT_MAX_VALUES,                                          \
     VS_RECENT_VLUT.table = (avsme * *)malloc(VS_RECENT_VLUT.max_keys * sizeof(avsme *))
 
 #define __new_entry VS_RECENT_VLUT.table[VS_RECENT_VLUT.n_keys] = (avsme *)malloc(VS_RECENT_VLUT.max_values * sizeof(avsme))
@@ -183,7 +183,7 @@ void __VS_VLUT_print   (
                             size_t _stride
                         ); /* Actual Function */
 
-#define Vlut new_vlut; if (1)
+#define Vlut for ( new_vlut ; ; VS__free_recent_vlut() )
 #define For new_key
 #define Join ;new_value 1 + 0 | 
 #define Vary ;new_value 1 + AVSME_VARIANCE | 
@@ -197,17 +197,19 @@ void __VS_VLUT_print   (
 #define token_print         print_collected(out)
 #define token_paste(dest)   paste_collected(dest, out)
 
-#define Make(_name, _max_keys, _max_values)                             \
-    VLUT_DECLARE(_name, _max_keys, _max_values);                        \
-    _name.n_keys = VS_RECENT_VLUT.n_keys;                               \
-    for (int i = 0; i < VS_RECENT_VLUT.n_keys; i++) {                   \
-        memcpy(                                                         \
-            (avsme *)(_name.table) + i*(VS_RECENT_VLUT.max_values + 2), \
-            VS_RECENT_VLUT.table[i],                                    \
-            ((int)(VS_RECENT_VLUT.table[i][1] + 2))*sizeof(avsme)       \
-        );                                                              \
-    }                                                                   \
-    VS__free_recent_vlut()
+#define Make(_name, _max_keys, _max_values)                                 \
+    break;}                                                                 \
+    VLUT_DECLARE(_name, _max_keys, _max_values);                            \
+    _name.n_keys = VS_RECENT_VLUT.n_keys;                                   \
+    for (int i = 0; i <= VS_RECENT_VLUT.n_keys; i++) {                      \
+        if (i != VS_RECENT_VLUT.n_keys) {                                   \
+            memcpy(                                                         \
+                (avsme *)(_name.table) + i*(VS_RECENT_VLUT.max_values + 2), \
+                VS_RECENT_VLUT.table[i],                                    \
+                ((int)(VS_RECENT_VLUT.table[i][1] + 2))*sizeof(avsme)       \
+            );                                                              \
+        }                                                                   \
+        else VS__free_recent_vlut();
 
 extern size_t VS_active_vlut_n_keys;
 extern avsme * VS_active_vlut_table;

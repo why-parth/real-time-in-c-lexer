@@ -82,9 +82,9 @@ buffer[out.new_token - out.old_token] = 0
     avsme mergetoken(__VLUT__, __LINE__)[max_keys][max_values + 2]
 /* This macro creates a 2D UID array of the given dimensions {max_keys, max_values + 2} (+ 2 to account for storing keys and the number of values). */
 
-#define __VLUT_variable_declare(name, max_values) 			        			        \
-    typedef struct { size_t n_keys; volatile mergetoken(name, _VLUT_TABLE_t) table; }   \
-    mergetoken(name, _VLUT_t); mergetoken(name, _VLUT_t) name; name.n_keys = 0;         \
+#define __VLUT_variable_declare(name, max_values) 			        			\
+    typedef struct { size_t n_keys; mergetoken(name, _VLUT_TABLE_t) table; }    \
+    mergetoken(name, _VLUT_t); mergetoken(name, _VLUT_t) name; name.n_keys = 0; \
     name.table = mergetoken(__VLUT__, __LINE__)
 /* This macro defines a struct especially to use the UID typedef from the macro __VLUT_typedef_pointer_to_array and then creates its instance whose n_keys is set 0 and table is set to UID array from __VLUT_key_value_declare. */
 
