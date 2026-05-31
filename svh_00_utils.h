@@ -1,5 +1,12 @@
-#ifndef __VUTILS__
-#define __VUTILS__
+//
+// Verlet Utility Header
+//
+/*
+This header provides many of the frequently used functions throught the entire Verlet framework.
+*/
+
+#ifndef _INC_V_UTILS
+#define _INC_V_UTILS
 
 #define vfilename(path) ( strrchr(path, '/') ? strrchr(path, '/') + 1 : strrchr(path, '\\') ? strrchr(path, '\\') + 1 : path )
 
@@ -24,6 +31,10 @@
      (_pos + _len >= _strlen || __char_symbol(_str[_pos + _len])))  \
     ? (1 + 2*(_pos + _len >= _strlen) + (_pos == 0))                \
     : 0
+
+
+#define __stringof(a) #a
+#define stringof(a) __stringof(a)
 
 #define __mergetoken(a, b) a##b
 #define mergetoken(a, b) __mergetoken(a, b)
@@ -67,10 +78,6 @@
 
 #define debug_bar "\033[34m|\033[39m"
 
-#define v_script "vscript.h"
-#define v_implement "verlet_std.h"
-#define v_script_init "init_vscript.c"
-#define v_collect "init_vscript.c"
-#define v_collect_init "init_vcollect.c"
+#define v_implement "svh____init.h"
 
 #endif

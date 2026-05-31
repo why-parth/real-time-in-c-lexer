@@ -1,6 +1,14 @@
-#if !defined(VERLET_SCRIPT)
-#define VERLET_SCRIPT
-#include "vcollect.h"
+//
+// Verlet Script Header
+//
+/*
+This header initialises the DSL for Verlet Lexer.
+*/
+
+#ifndef _INC_V_SCRIPT
+#define _INC_V_SCRIPT
+
+#include "svh_04_collect.h"
 #include <string.h>
 
 _Noreturn void VERLET_VLUT_exit(void);
@@ -95,8 +103,8 @@ void VS__free_recent_vlut(void);
 #define numeric (uint8_t)(2 << AVSME_MAINCLASS_SHIFT)
 
 #define operate (uint8_t)(3 << AVSME_MAINCLASS_SHIFT)
-    #define single  | (1 << AVSME_SUBCLASS_SHIFT)
-    #define double  | (2 << AVSME_SUBCLASS_SHIFT)
+    #define oneval  | (1 << AVSME_SUBCLASS_SHIFT)
+    #define twoval  | (2 << AVSME_SUBCLASS_SHIFT)
 
 #define enclose (uint8_t)(4 << AVSME_MAINCLASS_SHIFT)
     #define open    | (1 << AVSME_SUBCLASS_SHIFT)
@@ -183,7 +191,7 @@ void __VS_VLUT_print   (
                             size_t _stride
                         ); /* Actual Function */
 
-#define Vlut for ( new_vlut ; ; VS__free_recent_vlut() )
+#define Vlut for ( new_vlut ; VS_RECENT_VLUT.table ; VS__free_recent_vlut() )
 #define For new_key
 #define Join ;new_value 1 + 0 | 
 #define Vary ;new_value 1 + AVSME_VARIANCE | 
@@ -193,46 +201,84 @@ void __VS_VLUT_print   (
 #define Show VS_RECENT_VLUT_print()
 #define ShowVLUT(_vlut) VS_VLUT_print(_vlut)
 
-#define token_show          printf("\033[38;2;200;200;0m<\033[39m"), print_collected(out), printf("\033[38;2;200;200;0m>\033[39m")
+#define VERLET_print_collected(out)     \
+    (out.old_token[0] == '\n') ? printf("\\n") :  \
+    (out.old_token[0] == '\t') ? printf("\\t") :  \
+    (out.old_token[0] == '\r') ? printf("\\r") :  \
+    (out.old_token[0] == '\a') ? printf("\\a") :  \
+    print_collected(out)
+
+#define token_show          printf("\033[38;2;200;200;0m<\033[39m"), VERLET_print_collected(out), printf("\033[38;2;200;200;0m>\033[39m")
 #define token_print         print_collected(out)
 #define token_paste(dest)   paste_collected(dest, out)
 
-#define Make(_name, _max_keys, _max_values)                                 \
-    break;}                                                                 \
-    VLUT_DECLARE(_name, _max_keys, _max_values);                            \
+#define VS_cast_vlut_to_static(_name)                                       \
     _name.n_keys = VS_RECENT_VLUT.n_keys;                                   \
     for (int i = 0; i <= VS_RECENT_VLUT.n_keys; i++) {                      \
         if (i != VS_RECENT_VLUT.n_keys) {                                   \
             memcpy(                                                         \
-                (avsme *)(_name.table) + i*(VS_RECENT_VLUT.max_values + 2), \
+                _name.table + i*(VS_RECENT_VLUT.max_values + 2),            \
                 VS_RECENT_VLUT.table[i],                                    \
                 ((int)(VS_RECENT_VLUT.table[i][1] + 2))*sizeof(avsme)       \
             );                                                              \
         }                                                                   \
-        else VS__free_recent_vlut();
+        else {                                                              \
+            VS__free_recent_vlut();                                         \
+            VS_RECENT_VLUT.n_keys = 0;                                      \
+            VS_RECENT_VLUT.n_values = 0;                                    \
+        }
+
+#define Make(_name, _max_keys, _max_values)         \
+    break;}                                         \
+    VLUT_DECLARE(_name, _max_keys, _max_values);    \
+    VS_cast_vlut_to_static(_name)
+
+#define Decl(_name, _max_keys, _max_values)          \
+    VLUT_HINT(_name, _max_keys, _max_values);
+
+#define Save(_name)                 \
+    break;}                         \
+    VLUT_INIT(_name);               \
+    VS_cast_vlut_to_static(_name)
+
 
 extern size_t VS_active_vlut_n_keys;
 extern avsme * VS_active_vlut_table;
 extern size_t VS_active_vlut_stride;
 
-#define Using(_vlut)                                                 \
-    VS_active_vlut_n_keys = _vlut.n_keys;                            \
-    VS_active_vlut_table = (avsme *)_vlut.table;                     \
-    VS_active_vlut_stride = sizeof(*(_vlut.table)) / sizeof(avsme)
+#define Using(_vlut)                                                    \
+    VS_active_vlut_n_keys = _vlut.n_keys;                               \
+    VS_active_vlut_table = _vlut.table;                                 \
+    VS_active_vlut_stride = _vlut.max_values + 2
 
 #define Collect(string)\
-    ;for ( struct collect_out out = { .char_class = 1000 } ; out.char_class == 1000 ; ) \
+    ;for ( out.char_class = 1000 ; out.char_class == 1000 ; )                           \
     while (                                                                             \
             (                                                                           \
-            out = __collect_variation_in (                                              \
+            out = collect_variation_in (                                              \
                 string,                                                                 \
                 VS_active_vlut_n_keys,                                                  \
-                (avsme *)VS_active_vlut_table,                                          \
+                VS_active_vlut_table,                                                   \
                 VS_active_vlut_stride                                                   \
             )                                                                           \
         ).old_token                                                                     \
     )
 
-#define VERLET_SCRIPT_IMPL
+#define cast_to_fnv(_token) (_Generic((_token), \
+    char * : (__fnv((char *)_token)),           \
+    default : (hash)_token                      \
+))
+
+#define context(name) void name (void)
+
+#define expect(_token, ...)                                                                             \
+    static char mergetoken(EXPEC_, __LINE__) = 0;                                                       \
+    if (_token && token_is(_token __VA_OPT__(,) __VA_ARGS__)) mergetoken(EXPEC_, __LINE__) = 1;         \
+    else if (_token) for (; (mergetoken(EXPEC_, __LINE__) == 1); (mergetoken(EXPEC_, __LINE__) = 0))
+
+#define keep_expecting break
+#define stop_expecting continue
+
+#define _REQ_INIT_V_SCRIPT
 
 #endif
