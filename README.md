@@ -1,7 +1,7 @@
-
+![Title Image](.\.ignore\verlet_no_bg.png)
 
 ##### Below shown is purely implemented in C23 via a self-coded framework called _Verlet Lexer_ _(Vlex)_. Not the best practices were followed, and many changes in the future are to come, but even this primitive lexer could colorize the tokens of a C code.
-![Example Code](.ignore\project_001_output.png)
+![Example Code](.\.ignore\project_001_output.png)
 
 # <span style="color:rgb(224, 102, 102)">Verlet Lexer</span>
 Verlet Lexer is a C framework that enables token recognition. It is commonly referred to as _Vlex_ and is a component of a unification called the _Verlet Framework_.
@@ -39,22 +39,27 @@ AVSME _( `avsme` )_ stands for ASCII-Variance-Subclass-Mainclass-Exists, it is a
 
 `ascii` `variance` `sub-class` `main-class` `exists`
 
-#### AVSME Interface
+### AVSME Interface
 AVSME Interface refers to the collection of utilities defined in the AVSME Header.
 
 `AVSME_GET(a)`, returns the value of the query (`ASCII`, `VARIANCE`, `SUBCLASS`, `MAINCLASS` or `EXISTS`).
+
 `AVSME_SET(a)`, assigns the value of the query.
+
 `AVSME_VARIANT(a)`, returns `AVSME_GET(a, VARINACE)`.
+
 `AVSME_BOOLEAN(a)`, returns the boolean value (`AVSME_TRUE`, `AVSME_FALSE` or `AVSME_NONE`).
 
+
 `AVSME_COMPARE(a, b)`, returns `1` if the value of the query is same for both `a` and `b`, `0` if not.
+
 `AVSME_OVERLAP(a, b)`, returns `1` if the ASCII value of `a` and `b` is same or if the class of `a` _includes_ that of `b`, `0` otherwise.
 
 > The phrase _"class of `a` includes that of `b`"_ will be made clear once char classes are understood. 
 
 
-#### Char Class
-Characters in this framework can be grouped into classifications called _char classes_ such as numeric _(numbers)_, operate _(operators)_. Sometimes, classes are not enough to correctly group the characters, in those cases, _char sub-classes_ can also be defined.
+### Char Class
+Characters in this framework can be grouped into classifications called _char classes_ such as `numeric` _(numbers)_, `operate` _(operators)_. Sometimes, classes are not enough to correctly group the characters, in those cases, _char sub-classes_ can also be defined.
 
 Char classes can be _(must be)_ defined using the macro `charclass`, `charclass` is a keyword in Verlet Lexer framework, it is not allowed to name anything as `charclass`.
 
@@ -148,7 +153,7 @@ This implementation not only has _classes_, but they also have _sub\_classes_. T
 
 > Verlet's standard `charclass` implementation printed using `VERLET_charclass_print`
 >
-> ![alt text](.ignore\charclass_image.png)
+> ![Image of Verlet Standard Char-class implementation](.\.ignore\charclass_image.png)
 >
 > You can see how each mainclass is represented with a number, and so is the sub-class. Those numbers are the internally assigend enumarations; Those classes that do not have any sub-classes have the _sub-class enumeration_ of `0`.
 >
