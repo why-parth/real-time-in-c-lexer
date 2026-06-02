@@ -19,6 +19,11 @@ extern hash __token_meta;
 
 hash __fnv(char * str, ...);
 
+#define cast_to_fnv(_token) (_Generic((_token), \
+    char * : (__fnv((char *)_token)),           \
+    default : (hash)_token                      \
+))
+
 #define fnv(_token, ...) __VA_OPT__(_token; _token =) __fnv(__VA_ARGS__ __VA_OPT__(,) _token )
 
 #define token_is(cmp, ...) (_Generic((cmp),                                                     \

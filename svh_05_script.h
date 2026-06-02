@@ -264,11 +264,6 @@ extern size_t VS_active_vlut_stride;
         ).old_token                                                                     \
     )
 
-#define cast_to_fnv(_token) (_Generic((_token), \
-    char * : (__fnv((char *)_token)),           \
-    default : (hash)_token                      \
-))
-
 #define context(name) void name (void)
 
 #define expect(_token, ...)                                                                             \

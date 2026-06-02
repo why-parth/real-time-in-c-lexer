@@ -1,7 +1,7 @@
-![Title Image](.\ignore\verlet_no_bg.png)
+![Title Image](ignore\verlet_no_bg.png)
 
 ##### Below shown is purely implemented in C23 via a self-coded framework called _Verlet Lexer_ _(Vlex)_. Not the best practices were followed, and many changes in the future are to come, but even this primitive lexer could colorize the tokens of a C code.
-![Example Code](.\ignore\project_001_output.png)
+![Example Code](ignore\project_001_output.png)
 
 # <span style="color:rgb(224, 102, 102)">Verlet Lexer</span>
 Verlet Lexer is a C framework that enables token recognition. It is commonly referred to as _Vlex_ and is a component of a unification called the _Verlet Framework_.
@@ -39,7 +39,7 @@ AVSME _( `avsme` )_ stands for ASCII-Variance-Subclass-Mainclass-Exists, it is a
 
 `ascii` `variance` `sub-class` `main-class` `exists`
 
-### AVSME Interface
+#### AVSME Interface
 AVSME Interface refers to the collection of utilities defined in the AVSME Header.
 
 `AVSME_GET(a)`, returns the value of the query (`ASCII`, `VARIANCE`, `SUBCLASS`, `MAINCLASS` or `EXISTS`).
@@ -58,7 +58,7 @@ AVSME Interface refers to the collection of utilities defined in the AVSME Heade
 > The phrase _"class of `a` includes that of `b`"_ will be made clear once char classes are understood. 
 
 
-### Char Class
+#### Char Class
 Characters in this framework can be grouped into classifications called _char classes_ such as `numeric` _(numbers)_, `operate` _(operators)_. Sometimes, classes are not enough to correctly group the characters, in those cases, _char sub-classes_ can also be defined.
 
 Char classes can be _(must be)_ defined using the macro `charclass`, `charclass` is a keyword in Verlet Lexer framework, it is not allowed to name anything as `charclass`.
@@ -145,7 +145,9 @@ Verlet Lexer comes with a standard implementation of char classes.
 
 This implementation not only has _classes_, but they also have _sub\_classes_. To use this implementation, we must define `charclass` as a macro as,
 
-```#define charclass VERLET_charclass```
+```C
+#define charclass VERLET_charclass
+```
 
 >If you use the above implementation alone, the escape sequences give an _invalid char_ error, and that error can be handles using the `VSCRIPT_INVALID_CHAR_CASE` macro. When you include the standard implementation via `verlet_std.h`, the escape sequences already come implemented using `VSCRIPT_INVALID_CHAR_CASE` so no need to do anything.
 
@@ -153,7 +155,7 @@ This implementation not only has _classes_, but they also have _sub\_classes_. T
 
 > Verlet's standard `charclass` implementation printed using `VERLET_charclass_print`
 >
-> ![Image of Verlet Standard Char-class implementation](.\ignore\charclass_image.png)
+> ![Image of Verlet Standard Char-class implementation](ignore\charclass_image.png)
 >
 > You can see how each mainclass is represented with a number, and so is the sub-class. Those numbers are the internally assigend enumarations; Those classes that do not have any sub-classes have the _sub-class enumeration_ of `0`.
 >
@@ -168,8 +170,78 @@ Char-class inclusion is a bool that is evaluated as, for `a` and `b`,
 
 > Char-class inclusion is also called char-class overlap. `AVSME_OVERLAP(a, b)` returns the overlap of `a` and `b`, sequence matters.
 
+## `hash`
+Hash _( `hash` )_ is simply `typedef uint64_t`, it is defined to store _unique_ integers. _Hash functions_ are those functions that take in a seed a generate a unique number as an output. There can be collisions, but the chances of two seeds restulting in the same seed can be reduced to practically null using the right hash functions.
 
+The hash function used in Verlet Lexer is _FNV_ _(Fowler–Noll–Vo)_ hash function _(64 bit variant, more about it on [wikipedia](https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function))_
 
+It is define
 
+`hash` is defined in the SVH `svh_02_hash.h`, Hash Header.
 
+#### FNV Keywords
+FNV keywords automate the process of creating FNV hashes, there are a total of four FNV Keywords.
+
+`svh_02_hash.h`, has `hash __token_meta` defined globally so that any part of the program can write to it.
+
+<br>
+
+`push_fnv` is used to append `__token_meta` by any possible number.
+```C
+fnv_push 45;
+fnv_push 't';
+/*
+__token_meta now stores an integer that
+belongs only to the sequence {45, 't'}.
+*/
+``` 
+
+<br>
+
+`get_fnv` is simply defined as `(__token_meta)`, it is used to retrieve the value of `__token_meta`
+```C
+printf("%zu\n", get_fnv);
+printf("%zu\n", __token_meta);
+// same output.
+``` 
+
+<br>
+
+`get_reset` resets the value of `(__token_meta)`.
+```C
+fnv_push 45;
+fnv_push 't';
+printf("%zu\n", get_fnv);
+fnv_reset;
+// __token_meta stores nothing now.
+``` 
+
+Always reset FNV.
+
+<br>
+
+`fnv(string, ...)` is macro defined to perform two tasks,
+
+- It can return the fnv of string (same character sequence will result in the same FNV),
+`hash unique_int = fnv("this");`,
+`unique_int` now has an int that belongs to the sequence {`'t'`, `'h'`, `'i'`, `'s'`}.
+Same result could be achieved by doing,
+```fnv_reset; fnv_push 't'; fnv_push 'h'; fnv_push 'i'; fnv_push 's'; hash unique_int = get_fnv; fnv_reset;```.
+
+<br>
+
+- If you pass two arguments to the `fnv` macro, it ends up assiging the first argument, the hash of the second argument _(must be a string)_.
+`fnv(unique_int, "this");`, is same as `unique_int = fnv("this");`. 
+However if `unique_int` _(passed variable name)_ is not defined, you must complete the syntax by adding `hash` before,
+`hash fnv(unique_int, "this");`.
+
+<br>
+
+`cast_to_fnv(value)` is macro defined to perform a very important task,
+- If the value is a `char *` (string), it calculates the FNV for that string in real time and returns it.
+- Else, it type casts the value in to `hash` and returns it.
+
+<br>
+
+> `fnv()` and `cast_to_fnv()` do not affect `__token_meta`.
 
