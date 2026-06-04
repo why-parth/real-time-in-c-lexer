@@ -42,7 +42,7 @@ struct collect_out collect_immediate(char * _str) {
     else if(!*_str) return COLLECT_OUT_NULL;
     /* If the given string is empty, char class is 0 and the pointers to tokens are NULL. */
 
-    uint_least16_t char_class = charclass(_str[0]); // Char class of the first char.
+    avsme char_class = charclass(_str[0]); // Char class of the first char.
     char * current_token = _str++; // Pointer to the current token (updates _str)
 
     while ((*_str) && (char_class == charclass(*_str))) _str++;

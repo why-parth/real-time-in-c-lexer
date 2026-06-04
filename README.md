@@ -1,7 +1,10 @@
-![Title Image](ignore\verlet_no_bg.png)
+![Title Image](z_ignore_verlet_no_bg.png)
 
 ##### Below shown is purely implemented in C23 via a self-coded framework called _Verlet Lexer_ _(Vlex)_. Not the best practices were followed, and many changes in the future are to come, but even this primitive lexer could colorize the tokens of a C code.
-![Example Code](ignore\project_001_output.png)
+![Example Code](z_ignore_project_001_output.png)
+
+<br>
+
 
 # <span style="color:rgb(224, 102, 102)">Verlet Lexer</span>
 Verlet Lexer is a C framework that enables token recognition. It is commonly referred to as _Vlex_ and is a component of a unification called the _Verlet Framework_.
@@ -25,6 +28,8 @@ A lexer is any implementation that breaks down text data into fragmented data, i
 
 >_Universal Context Maker_ is Verlet's approach as parsing tokens. It is a complex header with its own DSL that can be (is always) seen as a part of Verlet Lexer's DSL Vscript. UCM is a token parsing utility; Conventianally being the suceeding step to lexical analysis, token parsing in Verlet Lexer is a part of Vscript (that is a lexer's DSL).
 
+<br>
+
 # <span style="color:rgb(224, 102, 102)">Data Structures of Verlet Lexer</span>
 
 ## `avsme`
@@ -39,7 +44,7 @@ AVSME _( `avsme` )_ stands for ASCII-Variance-Subclass-Mainclass-Exists, it is a
 
 `ascii` `variance` `sub-class` `main-class` `exists`
 
-#### AVSME Interface
+### AVSME Interface
 AVSME Interface refers to the collection of utilities defined in the AVSME Header.
 
 `AVSME_GET(a)`, returns the value of the query (`ASCII`, `VARIANCE`, `SUBCLASS`, `MAINCLASS` or `EXISTS`).
@@ -58,7 +63,7 @@ AVSME Interface refers to the collection of utilities defined in the AVSME Heade
 > The phrase _"class of `a` includes that of `b`"_ will be made clear once char classes are understood. 
 
 
-#### Char Class
+### Char Class
 Characters in this framework can be grouped into classifications called _char classes_ such as `numeric` _(numbers)_, `operate` _(operators)_. Sometimes, classes are not enough to correctly group the characters, in those cases, _char sub-classes_ can also be defined.
 
 Char classes can be _(must be)_ defined using the macro `charclass`, `charclass` is a keyword in Verlet Lexer framework, it is not allowed to name anything as `charclass`.
@@ -155,7 +160,7 @@ This implementation not only has _classes_, but they also have _sub\_classes_. T
 
 > Verlet's standard `charclass` implementation printed using `VERLET_charclass_print`
 >
-> ![Image of Verlet Standard Char-class implementation](ignore\charclass_image.png)
+> ![Image of Verlet Standard Char-class implementation](z_ignore_charclass_image.png)
 >
 > You can see how each mainclass is represented with a number, and so is the sub-class. Those numbers are the internally assigend enumarations; Those classes that do not have any sub-classes have the _sub-class enumeration_ of `0`.
 >
@@ -179,7 +184,7 @@ It is define
 
 `hash` is defined in the SVH `svh_02_hash.h`, Hash Header.
 
-#### FNV Keywords
+### FNV Keywords
 FNV keywords automate the process of creating FNV hashes, there are a total of four FNV Keywords.
 
 `svh_02_hash.h`, has `hash __token_meta` defined globally so that any part of the program can write to it.
@@ -224,9 +229,11 @@ Always reset FNV.
 
 - It can return the fnv of string (same character sequence will result in the same FNV),
 `hash unique_int = fnv("this");`,
-`unique_int` now has an int that belongs to the sequence {`'t'`, `'h'`, `'i'`, `'s'`}.
+`unique_int` now stores an integer that belongs only to the sequence {`'t'`, `'h'`, `'i'`, `'s'`}.
 Same result could be achieved by doing,
-```fnv_reset; fnv_push 't'; fnv_push 'h'; fnv_push 'i'; fnv_push 's'; hash unique_int = get_fnv; fnv_reset;```.
+`fnv_reset;`
+`fnv_push 't'; fnv_push 'h'; fnv_push 'i'; fnv_push 's'; hash unique_int = get_fnv;`
+`fnv_reset;`
 
 <br>
 
@@ -238,10 +245,259 @@ However if `unique_int` _(passed variable name)_ is not defined, you must comple
 <br>
 
 `cast_to_fnv(value)` is macro defined to perform a very important task,
-- If the value is a `char *` (string), it calculates the FNV for that string in real time and returns it.
-- Else, it type casts the value in to `hash` and returns it.
+- If value is if type `char *` (string), calculate the FNV for value and return it.
+- Else, type cast value into `hash` and return it.
 
 <br>
 
 > `fnv()` and `cast_to_fnv()` do not affect `__token_meta`.
 
+<br>
+
+# <span style="color:rgb(224, 102, 102)">Mechanisms of Verlet Lexer</span>
+
+
+## Verlet Lexer as a State Machine
+Verlet Lexer is a _state machine_, which means that what is does is pre-defined but how it does is user-defined (about it on [wikipedia](https://en.wikipedia.org/wiki/Finite-state_machine)).
+
+A user can define multiple set of rules _(states)_ and set those any of them as active _(active state)_, at any point in the program's entire run-time.
+
+Earlier we saw how `charclass` must be defined in the begining of the program, in reality `charclass` too is a state, we can define `charclass` as,
+
+```C
+#define charclass STATE_charclass
+avsme (* STATE_charclass)(char c);
+// Now we can dynamically set different charclass implementations as active.
+```
+
+> Usually, we never change `charclass` after definition, so we use a function instead of a function pointer. But, `charclass` can absolutely be changed at any point in the midst of the program run-time, it is legal to do that.
+
+## Token Collection
+
+In Verlet Lexer, extracting tokens from a string is referred to as _collecting_ tokens. And all token collection in Verlet Lexer is done by following a simple algorithm.
+
+The algorithm,
+
+```C
+
+char * string;
+char select = string[0];
+char target;
+size_t len = sizeof(string);
+
+putchar(select);
+
+for (int i = 1; i < len; i++) {
+    target = string[i];
+
+    if ( condition ) putchar('\n');
+
+    select = string[i];
+    putchar(select);
+}
+```
+  
+This algorithm performs a very simple task, and that is, _print the characters normally but if `condition` is true, then print `\n` before the char_. As a result, _characters are grouped_ on the basis of when `condition` is true and when it is not.
+
+This fairly simple algorithm groups characters on the basis of what makes `condition` true. The more formal name of this condition is `variation` _(Variation)_. And the entire algorithm can be looked at as,
+- Define variation.
+- Take a string.
+- Iterate through the string and split the string wherever _variation_ is true.
+
+Now, variation can be a function of _index (of the string)_, _select_, _target_, or anything at all. 
+
+>Verlet Lexer does not explitcly define `variation`, neither does it explicitly uses the _algorithm's template_, this algorithm exists merely in spirit, the concept of this alorithm is practiced in the overall process of token collection.
+>
+>The standard process of token collection in Verlet Lexer assumes `variation` as a function of _select_ and _target_.
+
+
+<br>
+
+# <span style="color:rgb(224, 102, 102)">Collect Functions</span>
+Collect functions are functions that take in a string and output the first token of that string. There are two types of collect functions that are defined by the SVHs,
+- `collect_immediate`
+- `collect_variation`
+
+<br>
+
+## `collect_immediate` 
+
+### Theory
+`collect_immediate` returns the first token of the passed string, on the basis of a condition.
+
+```C
+int collect_immediate(char * string, ) {
+    char select = string[0];
+    char target;
+    int i = 1;
+
+    for (; target = string[i]; i++) 
+
+        if (charclass(select) != charclass(target))
+        break;
+        else
+        select = target;
+
+    return i;
+}
+```
+
+In this implementation, we get the index of the char where the new token starts relative to the passed string.
+
+Given that we have set Velet Lexer's standard `charclass` as active,
+```C
+#define charclass VERLET_charclass
+```
+
+We can start to detect the tokens right away,
+```C
+char code[] = "int a = 45;";
+
+char * token = code;
+int token_end;
+
+token_end = collect_immediate(token);
+
+printf("%.*s", token_end, token);
+```
+> `int`
+
+This token collection is called _immediate token collection_, because the function returns immediately when the char class of the target changes.
+
+To get the next token we can apply pointer arithmetic,
+```C
+token += token_end
+token_end = collect_immediate(token);
+
+printf("%.*s", token_end, token);
+```
+> ` `
+
+We can repeat this until the string is terminated,
+
+```C
+char code[] = "int a = 45;";
+
+char * token = code;
+int token_end;
+
+while (*token) {
+    token_end = collect_immediate(token);
+    printf("%.*s", token_end, token);
+    token += token_end
+}
+```
+> `int` ` ` `a` ` ` `=` ` ` `45` `;` 
+
+### Definition
+Verlet Lexer achieves the same functionality of `collect_immediate` but with one small change. Instead of returning the index of new token relative to the string, the function returns these values,
+- charclass of the first char of the token
+- pointer to the start of the current token
+- pointer to the start of the next token
+
+In C, you return multiple values using structs, thus, a struct is defined for accommodating multiple return values of the collect function(s).
+
+```C
+struct collect_out {
+    avsme char_class;
+    char * old_token;
+    char * new_token;
+};
+```
+
+`old_token` is the token that the collect function just scanned, and `new_token` is the token that it stopped at.
+
+> `struct collect_out COLLECT_OUT_NULL` is defined to represent an empty return value.
+
+Now, the true implementation of `collect_variation` that the Verlet Lexer uses is,
+
+
+```C
+struct collect_out collect_immediate(char * _str) {
+    if(!_str) return COLLECT_OUT_NULL;
+    /* If the given string is NULL, char class is
+    -1 and the pointers to tokens are NULL. */
+    else if(!*_str) return COLLECT_OUT_NULL;
+    /* If the given string is empty, char class is
+    0 and the pointers to tokens are NULL. */
+
+    avsme char_class = charclass(_str[0]); // Char class of the first char.
+    char * current_token = _str++; // Pointer to the current token (updates _str)
+
+    while ((*_str) && (char_class == charclass(*_str))) _str++;
+    /* Traversing the string unless the char class changes. */
+    
+    struct collect_out ret = {char_class, current_token, _str};
+    return ret;
+    /* Returning the collect_out of the char class and the pointers. */
+}
+```
+
+The loop mechanism can still be applied to one by one get all the tokens, but given how redundant it would be to set up a loop every time, a new function `collect_immediate_in` is defined that automates the _token polling process_.
+
+```C
+struct collect_out collect_immediate_in(char * _str) {
+    static char * current_string = NULL;
+    /* To be able to reset when the given string changes. */
+
+    static struct collect_out out;
+    /* To store the collect’s return value. */
+
+    if (_str != current_string) {
+        /* If the given string doesn’t match the string that 
+        we’ve been keeping track of, all the tracking resets. 
+        Thus, new tracking for new strings. */
+        current_string = _str;
+        out.new_token = _str;
+    }
+
+    if (!*(out.new_token)) {
+        // If the out terminates, then reset the static string.
+        current_string = NULL;
+        return COLLECT_OUT_NULL;
+    }
+
+    out = collect_immediate(out.new_token);
+    /* Collection of token and pointers to tokens. */
+
+    return out; // Returning collect_out
+}
+```
+
+This function has memory, it remembers what string is being scanned, and everytime you call it, it returns the next token. If there are no token to return and the string terminates, it returns `COLLECT_OUT_NULL`.
+
+### Practice
+We can use the function `collect_immediate_in` as,
+```C
+char string[] = "int a = 45;";
+struct collect_out out;
+
+while ((out = collect_immediate_in(string)).old_token) {
+    printf("%.*s", out.new_token - out.old_token, out.old_token);
+}
+```
+> `int` ` ` `a` ` ` `=` ` ` `45` `;` 
+
+The above syntax works flawlessly, but SVHs provides a specialsed syntax _(initialised using macros)_.
+```C
+char string[] = "int a = 45;";
+struct collect_out out;
+
+while (( out collects(string) )) {
+    print_collected(out);
+}
+```
+> `int` ` ` `a` ` ` `=` ` ` `45` `;` 
+
+
+<br>
+
+
+## `collect_variation` 
+
+
+
+## Variation Look-Up Table
+**V**ariation **L**ook **U**p **T**able is a data structure that defines the behavior of the Verlet Lexer.
+
+<br>
