@@ -1,6 +1,7 @@
 //
 // Verlet Script Header
 //
+// 1.0
 /*
 This header initialises the DSL for Verlet Lexer.
 */
@@ -130,8 +131,8 @@ void VS__free_recent_vlut(void);
 #define upper_str  "\033[1;32midvalid \033[22;36mupper\033[39m"
 #define numeric_str "\033[1;32mnumeric\033[22;39m"
 #define operate_str "\033[1;32moperate\033[22;39m"
-#define single_str  "\033[1;32moperate \033[22;36msingle\033[39m"
-#define double_str  "\033[1;32moperate \033[22;36mdouble\033[39m"
+#define oneval_str  "\033[1;32moperate \033[22;36moneval\033[39m"
+#define twoval_str  "\033[1;32moperate \033[22;36mtwoval\033[39m"
 #define enclose_str "\033[1;32menclose\033[22;39m"
 #define open_str  "\033[1;32menclose \033[22;36mopen\033[39m"
 #define close_str  "\033[1;32menclose \033[22;36mclose\033[39m"
@@ -155,8 +156,8 @@ __fc_check(fc, 12, "\033[1;32midvalid \033[22;36mlower\033[39m")           \
 __fc_check(fc, 13, "\033[1;32midvalid \033[22;36mupper\033[39m")           \
 __fc_check(fc, 20, "\033[1;32mnumeric\033[22;39m")    \
 __fc_check(fc, 30, "\033[1;32moperate\033[22;39m")    \
-__fc_check(fc, 31, "\033[1;32moperate \033[22;36msingle\033[39m")          \
-__fc_check(fc, 32, "\033[1;32moperate \033[22;36mdouble\033[39m")          \
+__fc_check(fc, 31, "\033[1;32moperate \033[22;36moneval\033[39m")          \
+__fc_check(fc, 32, "\033[1;32moperate \033[22;36mtwoval\033[39m")          \
 __fc_check(fc, 40, "\033[1;32menclose\033[22;39m")    \
 __fc_check(fc, 41, "\033[1;32menclose \033[22;36mopen\033[39m")            \
 __fc_check(fc, 42, "\033[1;32menclose \033[22;36mclose\033[39m")           \
@@ -208,9 +209,9 @@ void __VS_VLUT_print   (
     (out.old_token[0] == '\a') ? printf("\\a") :  \
     print_collected(out)
 
-#define token_show          printf("\033[38;2;200;200;0m<\033[39m"), VERLET_print_collected(out), printf("\033[38;2;200;200;0m>\033[39m")
-#define token_print         print_collected(out)
-#define token_paste(dest)   paste_collected(dest, out)
+#define token_show          printf("\033[38;2;200;200;0m<\033[39m"), VERLET_print_collected(COLLECT_OUT), printf("\033[38;2;200;200;0m>\033[39m")
+#define token_print         print_collected(COLLECT_OUT)
+#define token_paste(dest)   paste_collected(dest, COLLECT_OUT)
 
 #define VS_cast_vlut_to_static(_name)                                       \
     _name.n_keys = VS_RECENT_VLUT.n_keys;                                   \
@@ -252,10 +253,10 @@ extern size_t VS_active_vlut_stride;
     VS_active_vlut_stride = _vlut.max_values + 2
 
 #define Collect(string)\
-    ;for ( out.char_class = 1000 ; out.char_class == 1000 ; )                           \
+    ;for ( COLLECT_OUT.char_class = 1000 ; COLLECT_OUT.char_class == 1000 ; )                           \
     while (                                                                             \
             (                                                                           \
-            out = collect_variation_in (                                              \
+            COLLECT_OUT = collect_variation_in (                                              \
                 string,                                                                 \
                 VS_active_vlut_n_keys,                                                  \
                 VS_active_vlut_table,                                                   \

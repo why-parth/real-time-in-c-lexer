@@ -2,54 +2,43 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "svh_06_readwrite.h"
+#include "svh_07_context.h"
 #include v_implement
 
-void detect_class(void) {
+token_list(dtypes, 10) {
 
-    static int class_state = 0;
-
-    if token_is("class") token_show, class_state = 1;
-    else token_print;
-
-    expect("class") if (class_state) {
-
-        if token_is("{") {
-            class_state = 2;
-            color_fore(240, 240, 100);
-            printf("<block-starts>");
-            color_fore(100, 240, 100);
-        }
-
-        else if (class_state && token_is("}")) {
-            class_state = 0;
-            color_fore(240, 240, 100);
-            printf("<block-ends>");
-            color_fore_reset;
-            stop_expecting;
-        }
-
-        keep_expecting;
-    }
+    keyword(int);
+    keyword(char);
+    keyword(float);
 
 }
-   
+
+token_list(List);
+
+token_list(control, 10) {
+
+    keyword(if);
+    keyword(else);
+    keyword(return);
+
+}
+
+
 Decl(vlut, 8, 8);
 
 int main(void) {
+
+    enable_token_set(dtypes);
+    enable_token_set(control);
+
+    append_token_list(List, "typeof");
 
     Vlut {
         
         For idvalid
             Join idvalid
-            Join numeric
             Vary All;
         
-        For numeric
-            Join numeric
-            Join '.' Char
-            Vary All;
-
         For disjoin space
             Join disjoin space
             Vary All;
@@ -60,31 +49,21 @@ int main(void) {
         Save(vlut)
     
     }
+
     
-    char code[][48] = {
-        "#include <stdio.h>",
-        "class Person {",
-        "    int age = 45;",
-        "    contact phoneNumber;",
-        "    int dial(contact phoneNumber);",
-        "}",
-        "int main (void) {",
-        "   printf(\"this is some C code!\");",
-        "   return 0;",
-        "}"
-    };
-    
+    char code[] = "if (typeof(a) == int) return 0;";
 
-    for (int i = 0; i < 10; i++) {
 
-        Using (vlut) Collect(code[i]) {
+    Using (vlut) Collect(code) {
 
-            detect_class();
+        if token_in(dtypes) color_fore(100, 150, 200);
+        else if token_in(control) color_fore(200, 100, 100);
+        else if token_in(List) color_fore(100, 200, 100);
+        else if token_is(numeric) color_fore(200, 100, 200);
+        else color_fore_reset;
 
-        }
-        
-        putchar('\n');
-        
+        token_print;
+
     }
     
     return 0;

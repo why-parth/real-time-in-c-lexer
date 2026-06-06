@@ -1,6 +1,7 @@
 //
 // Verlet VLUT Header
 //
+// 1.0
 /*
 This header initialises the basic data structure that stores the Verlet Lexer's behaviour
 */

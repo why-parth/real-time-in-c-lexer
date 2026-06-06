@@ -379,8 +379,7 @@ void default_checks(void) {
     }
 
     if token_is(idvalid) {
-        memcpy(recent_iden, out.old_token, out.new_token - out.old_token);
-        recent_iden[(out.new_token - out.old_token)] = 0;
+        token_paste(recent_iden);
     }
 
     if token_is(tkn_newline) line_mode = 0;

@@ -1,6 +1,7 @@
 //
 // Verlet Collect Header
 //
+// 1.0
 /*
 This header initialises token recognition (token collection).
 */
@@ -18,7 +19,7 @@ struct collect_out {
 
 extern struct collect_out COLLECT_OUT_NULL;
 
-extern struct collect_out out;
+extern struct collect_out COLLECT_OUT;
 
 #define print_collected(out)    \
     printf("%.*s", out.new_token - out.old_token, out.old_token)
@@ -62,6 +63,18 @@ size_t print_str_collective_variation   (
                                             avsme * table,
                                             size_t 	_stride
                                         );
+
+#define token_is(cmp, ...) (_Generic(cmp,                                                                           \
+    hash : (get_fnv == (hash)cmp),                                                                                  \
+    char * : (get_fnv == __fnv((char *)cmp)),                                                                       \
+    uint8_t : ( (COLLECT_OUT.char_class & AVSME_MAINCLASS) == _Generic((cmp), char *: 0, int *: 0, default : cmp)   \
+        __VA_OPT__(&& (COLLECT_OUT.char_class & AVSME_SUBCLASS) == (0 __VA_ARGS__)) ),                              \
+    default : (0)                                                                                                   \
+))
+
+#define token_is_not(cmp, ...) (!token_is(cmp __VA_OPT__(,) __VA_ARGS__))
+
+#define class_is(cmp, ...) ( (COLLECT_OUT.char_class & AVSME_MAINCLASS) == cmp __VA_OPT__(&& (COLLECT_OUT.char_class & AVSME_SUBCLASS) == __VA_ARGS__) )
 
 #define _REQ_INIT_V_COLLECT
 

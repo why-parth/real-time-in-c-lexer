@@ -1,18 +1,22 @@
 //
 // Verlet Utility Header
 //
+// 1.0
 /*
-This header provides many of the frequently used functions throught the entire Verlet framework.
+This header provides many of the frequently used functions throught the entire Verlet Lexer Framework.
 */
 
 #ifndef _INC_V_UTILS
 #define _INC_V_UTILS
 
+// vfilename : Splits a files full path and return's only the file name, if file name is the full path, returns the full path.
 #define vfilename(path) ( strrchr(path, '/') ? strrchr(path, '/') + 1 : strrchr(path, '\\') ? strrchr(path, '\\') + 1 : path )
 
-#define __TYPE_ARGS(...) __VA_OPT__((int*))0
+// IF_ARGS : Returns valid C expressions on the basis of __VA_ARGS__ existence.
+#define __TYPE_ARGS(...) __VA_OPT__((int*))((int)0)
 #define IF_ARGS(yes, no, ...) _Generic(__TYPE_ARGS(__VA_ARGS__), int*: yes, int: no)
 
+/* To examine ASCII characters. */
 #define __char_to_lower(_char) (_char - ('A' - 'a'))
 #define __char_to_upper(_char) (_char - ('a' - 'A'))
 #define __char_lower_alpha(_char) ('a' <= _char && _char <= 'z')
@@ -26,16 +30,11 @@ This header provides many of the frequently used functions throught the entire V
 
 #define __char_symbol(_char) ((!__char_nsymbol(_char)))  // is a symbol
 
-#define __is_token_at(_str, _strlen, _pos, _len)                    \
-    ((_pos == 0 || __char_symbol(_str[_pos - 1])) &&                \
-     (_pos + _len >= _strlen || __char_symbol(_str[_pos + _len])))  \
-    ? (1 + 2*(_pos + _len >= _strlen) + (_pos == 0))                \
-    : 0
-
-
+// stringof : Returns the string of everything that is passed to it.
 #define __stringof(a) #a
 #define stringof(a) __stringof(a)
 
+/* To Merge tokens. */
 #define __mergetoken(a, b) a##b
 #define mergetoken(a, b) __mergetoken(a, b)
 
@@ -45,8 +44,11 @@ This header provides many of the frequently used functions throught the entire V
 #define __mergetokens4(a, b, c, d) a##b##c##d
 #define mergetokens4(a, b, c, d) __mergetokens4(a, b, c, d)
 
+// uniq : Returns a unique name for the name space that is passed to it.
+// (it uses __LINE__ to encode newness, different files may have same uniq, always use with caution.)
 #define uniq(_iden) mergetoken(_iden, __LINE__)
 
+/* To alter the style of printed text. */
 #define style_bold printf("\033[1m");
 #define style_bold_reset printf("\033[22m");
 
@@ -56,6 +58,7 @@ This header provides many of the frequently used functions throught the entire V
 #define style_underline printf("\033[4m");
 #define style_underline_reset printf("\033[24m");
 
+/* To alter the color of the printed text. */
 #define color_fore(r, g, b) printf("\033[38;2;%u;%u;%um", r, g, b)
 #define color_back(r, g, b) printf("\033[48;2;%u;%u;%um", r, g, b)
 #define color_fore_reset    printf("\033[39m")
@@ -66,8 +69,7 @@ This header provides many of the frequently used functions throught the entire V
 
 #define full_reset color_fore_reset; color_back_reset; style_bold_reset; style_italics_reset; style_underline_reset
 
-#define ifelse(condition, iftrue) (condition) ? iftrue :
-
+/* To debug. */
 #define debug_name "DEBUG"
 
 #define debug_print(format, ...) printf("\033[1;34m\n[" debug_name "] \033[22m" format "\033[39m" __VA_OPT__(,) __VA_ARGS__)
@@ -78,6 +80,7 @@ This header provides many of the frequently used functions throught the entire V
 
 #define debug_bar "\033[34m|\033[39m"
 
+/* Verlet Standard Implementation. */
 #define v_implement "svh____init.h"
 
 #endif

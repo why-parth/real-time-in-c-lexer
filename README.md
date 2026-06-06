@@ -1,4 +1,4 @@
-![Title Image](z_ignore_verlet_no_bg.png)
+<!-- ![Title Image](z_ignore_verlet_no_bg.png) -->
 
 ##### Below shown is purely implemented in C23 via a self-coded framework called _Verlet Lexer_ _(Vlex)_. Not the best practices were followed, and many changes in the future are to come, but even this primitive lexer could colorize the tokens of a C code.
 ![Example Code](z_ignore_project_001_output.png)

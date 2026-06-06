@@ -33,7 +33,7 @@ hash __fnv(char * str, ...) {
 #define _IMPL_V_COLLECT
 
 struct collect_out COLLECT_OUT_NULL = {AVSME_NULL, NULL, NULL};
-struct collect_out out = {AVSME_NULL, NULL, NULL};
+struct collect_out COLLECT_OUT = {AVSME_NULL, NULL, NULL};
 
 
 struct collect_out collect_immediate(char * _str) {
@@ -655,5 +655,53 @@ FILE * RW_recent_open = NULL;
 RW_init_Reader
 
 RW_init_Writer
+
+#endif
+
+#if defined(_INC_V_TOKENLIST) && !defined(_IMPL_V_TOKENLIST)
+#define _IMPL_V_TOKENLIST
+
+size_t VCo_enable_i = 0;
+hash * VCo_recent_set = NULL;
+
+int VCo_search_set(hash * _set, size_t _size) {
+    for (int i = 0; i < _size; i++) if token_is(_set[i]) return 1;
+    return 0;
+}
+
+struct VCo_hash_link * VCo_new_hash_link(hash _token) {
+    struct VCo_hash_link * ret = malloc(sizeof(struct VCo_hash_link));
+    ret->value = _token;
+    ret->next = NULL;
+    return ret;
+}
+
+void VCo_free_hash_links(struct VCo_hash_link * _hash_link) {
+    if (!_hash_link) return;
+    struct VCo_hash_link * current = _hash_link;
+    struct VCo_hash_link * to_free;
+
+    while (current->next) {
+        to_free = current;
+        current = current->next;
+        free(to_free);
+    }
+    free(current);
+}
+
+size_t VCo_search_hash_list(struct VCo_hash_link * _links, hash _token, ...) {
+    if (!_links) return 0;
+    size_t ret = 1;
+
+    struct VCo_hash_link * curr = _links;
+
+    while (curr->value != _token) {
+        if (!curr->next) return 0;
+        curr = curr->next;
+        ret++;
+    }
+
+    return ret;
+}
 
 #endif

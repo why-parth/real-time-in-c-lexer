@@ -1,5 +1,14 @@
+//
+// Verlet Read Write Header
+//
+// 1.0
+/*
+This header initialises the reading writing inferface of Verlet Lexer.
+*/
+
 #ifndef _INC_V_READWRITE
 #define _INC_V_READWRITE
+
 #include "svh_05_script.h"
 #include <stdio.h>
 

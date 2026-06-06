@@ -1,6 +1,7 @@
 //
 // Verlet Hash Header
 //
+// 1.0
 /*
 This header initialises a FNV hash function and buffer for faster token operation.
 */
@@ -25,17 +26,5 @@ hash __fnv(char * str, ...);
 ))
 
 #define fnv(_token, ...) __VA_OPT__(_token; _token =) __fnv(__VA_ARGS__ __VA_OPT__(,) _token )
-
-#define token_is(cmp, ...) (_Generic((cmp),                                                     \
-    hash : (get_fnv == (hash)cmp),                                                              \
-    char * : (get_fnv == __fnv((char *)cmp)),                                                   \
-    uint8_t : ( (out.char_class & AVSME_MAINCLASS) == _Generic((cmp), char *: 0, default : cmp) \
-        __VA_OPT__(&& (out.char_class & AVSME_SUBCLASS) == (0 __VA_ARGS__)) ),                  \
-    default : (0)                                                                               \
-))
-
-#define token_is_not(cmp, ...) (!token_is(cmp __VA_OPT__(,) __VA_ARGS__))
-
-#define class_is(cmp, ...) ( (out.char_class & AVSME_MAINCLASS) == cmp __VA_OPT__(&& (out.char_class & AVSME_SUBCLASS) == __VA_ARGS__) )
 
 #endif

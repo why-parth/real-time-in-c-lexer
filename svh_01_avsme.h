@@ -1,8 +1,14 @@
 //
 // Verlet AVSME Header
 //
+// 1.0
 /*
 This header initialises the primary datatype (AVSME) that is used in the backend of Verlet Lexer.
+*/
+
+// NOTE //
+/*
+This header by default implements the memory layout : avsme. To have a custom implementation, un-define to proceed. Do follow the used nomenclature to synchronise your AVSME header with upcoming headers.
 */
 
 #ifndef _INC_V_AVSME
