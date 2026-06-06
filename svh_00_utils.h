@@ -49,14 +49,14 @@ This header provides many of the frequently used functions throught the entire V
 #define uniq(_iden) mergetoken(_iden, __LINE__)
 
 /* To alter the style of printed text. */
-#define style_bold printf("\033[1m");
-#define style_bold_reset printf("\033[22m");
+#define style_bold printf("\033[1m")
+#define style_bold_reset printf("\033[22m")
 
-#define style_italics printf("\033[3m");
-#define style_italics_reset printf("\033[23m");
+#define style_italics printf("\033[3m")
+#define style_italics_reset printf("\033[23m")
 
-#define style_underline printf("\033[4m");
-#define style_underline_reset printf("\033[24m");
+#define style_underline printf("\033[4m")
+#define style_underline_reset printf("\033[24m")
 
 /* To alter the color of the printed text. */
 #define color_fore(r, g, b) printf("\033[38;2;%u;%u;%um", r, g, b)

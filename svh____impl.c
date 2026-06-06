@@ -405,15 +405,15 @@ avsme VERLET_charclass(char c) {
     RET_SUBCLASS = 3;
     MAINCLASS_6: RET_MAINCLASS = 6; goto VERLET_CHARCLASS_RETURN;
 
-    case '>'    :
-    case ')'    :
-    case ']'    :
-    case '}'    :
-    RET_SUBCLASS = 1; goto MAINCLASS_4;
     case '<'    :
     case '('    :
     case '['    :
     case '{'    :
+    RET_SUBCLASS = 1; goto MAINCLASS_4;
+    case '>'    :
+    case ')'    :
+    case ']'    :
+    case '}'    :
     RET_SUBCLASS = 2;
     MAINCLASS_4: RET_MAINCLASS = 4; goto VERLET_CHARCLASS_RETURN;
 
