@@ -2,11 +2,12 @@
 
 
 # Status
-<br>
+
 Reacent release : v1.1.0
+
 <br>
 
-![Example Code](z_ignore_project_002_output.png)
+![Example Code](z_ignore_project_002_output.png) 
 ##### Above shown colored token highlighting is implemented purely in C23 via a self-coded framework called _Verlet Lexer_.
 
 <br>
