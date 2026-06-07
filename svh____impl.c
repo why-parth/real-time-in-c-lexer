@@ -705,3 +705,261 @@ size_t VCo_search_hash_list(struct VCo_hash_link * _links, hash _token, ...) {
 }
 
 #endif
+
+#include "svh_08_cimpl.h"
+
+#if defined(_INC_V_CIMPL) && !defined(_IMPL_V_CIMPL)
+#define _IMPL_V_CIMPL
+
+uint16_t CIMPL_enclose_rgb[3] = {240, 100, 200};
+int64_t CIMPL_scope_count = 0;
+
+hash CIMPL_in_quotes = 0;
+hash CIMPL_this_quote = 0;
+
+int pre_processor_state = 1;
+
+hash CIMPL_tkn_newline;
+hash CIMPL_tkn_pre_processor_diretive;
+
+hash CIMPL_tkn_include;
+hash CIMPL_tkn_define;
+hash CIMPL_tkn_defined;
+hash CIMPL_tkn_undef;
+hash CIMPL_tkn_ifdef;
+hash CIMPL_tkn_ifndef;
+hash CIMPL_tkn_elifdef;
+hash CIMPL_tkn_elifndef;
+hash CIMPL_tkn_endif;
+hash CIMPL_tkn_error;
+hash CIMPL_tkn_warning;
+hash CIMPL_tkn_line;
+hash CIMPL_tkn_pragma;
+hash CIMPL_tkn_if;
+hash CIMPL_tkn_elif;
+hash CIMPL_tkn_else;
+hash pre_processor_command;
+
+
+token_list(DataTypes, 9) {
+    keyword(void);
+    keyword(char);
+    keyword(short);
+    keyword(int);
+    keyword(long);
+    keyword(float);
+    keyword(double);
+    keyword(signed);
+    keyword(unsigned);
+}
+
+token_list(StorageClasses, 6) {
+    keyword(auto);
+    keyword(register);
+    keyword(static);
+    keyword(extern);
+    keyword(thread_local);
+    keyword(_Thread_local);
+}
+
+token_list(TypeQualifiers, 4) {
+    keyword(const);
+    keyword(volatile);
+    keyword(restrict);
+    keyword(_Atomic);
+}
+
+token_list(Controls, 13) {
+    keyword(if);
+    keyword(else);
+    keyword(switch);
+    keyword(case);
+    keyword(default);
+    keyword(for);
+    keyword(while);
+    keyword(do);
+    keyword(break);
+    keyword(continue);
+    keyword(return);
+    keyword(goto);
+    keyword(typedef);
+}
+
+token_list(Structures, 4) {
+    keyword(struct);
+    keyword(union);
+    keyword(enum);
+}
+
+token_list(Specifiers, 1) {
+    keyword(inline);
+}
+
+token_list(CompileTimeOperators, 6) {
+    keyword(sizeof);
+    keyword(alignof);
+    keyword(_Generic);
+    keyword(alignas);
+    keyword(_Alignas);
+    keyword(_Alignof);
+}
+
+token_list(Assertion, 2) {
+    keyword(static_assert);
+    keyword(_Static_assert);
+}
+
+token_list(Functions);
+
+token_list(Macros);
+
+token_list(Pre_Processor_Commands, 15) {
+    keyword_hash(CIMPL_tkn_include);
+    keyword_hash(CIMPL_tkn_define);
+    keyword_hash(CIMPL_tkn_undef);
+    keyword_hash(CIMPL_tkn_ifdef);
+    keyword_hash(CIMPL_tkn_ifndef);
+    keyword_hash(CIMPL_tkn_elifdef);
+    keyword_hash(CIMPL_tkn_elifndef);
+    keyword_hash(CIMPL_tkn_endif);
+    keyword_hash(CIMPL_tkn_error);
+    keyword_hash(CIMPL_tkn_warning);
+    keyword_hash(CIMPL_tkn_line);
+    keyword_hash(CIMPL_tkn_pragma);
+    keyword_hash(CIMPL_tkn_if);
+    keyword_hash(CIMPL_tkn_elif);
+    keyword_hash(CIMPL_tkn_else);
+}
+
+token_list(Pre_Processor_Operators, 4) {
+    keyword_hash(CIMPL_tkn_defined);
+    keyword(&&);
+    keyword(||);
+    keyword(!);
+}
+
+Handle_Pre_Processing {
+    
+    switch (pre_processor_state)
+    {
+        case 2:
+
+            if token_is(idvalid) {
+                CIMPL_DeColorise;
+                    if (token_in(Pre_Processor_Commands)) {
+                        pre_processor_command = get_fnv;
+                        pre_processor_state = 3;
+                        CIMPL_Colorise_Red;
+                    }
+                    else {
+                        pre_processor_state = 0;
+                        CIMPL_Colorise_C_Tokens;
+                    }
+            }
+            break;
+            
+        default: if (pre_processor_command)
+        {
+
+            if (pre_processor_command == CIMPL_tkn_include) {
+                CIMPL_DeColorise;
+                CIMPL_Colorise_Yellow;
+            }
+
+            else if (pre_processor_command == CIMPL_tkn_define)
+            {
+                CIMPL_DeColorise;
+                switch (pre_processor_state)
+                {
+                    case 3:
+                        if token_is(idvalid) {
+                            pre_processor_state = 4;
+                            append_token_list(Macros, get_fnv);
+                            CIMPL_Colorise_Green;
+                        }
+                        else if token_is_not(disjoin, space) {
+                            pre_processor_state = 0;
+                            CIMPL_Colorise_C_Tokens;
+                        }
+                        break;
+                    case 4:
+                        if token_is(enclose, open) {
+                            pre_processor_state = 5;
+                            CIMPL_Colorise_Green;
+                        }
+                        else {
+                            pre_processor_state = 6;
+                            CIMPL_Colorise_C_Tokens;
+                        }
+                        break;
+                    case 5:
+                        if token_is(enclose, close) {
+                            pre_processor_state = 6;
+                            CIMPL_Colorise_Green;
+                        }
+                        else {
+                            CIMPL_Colorise_C_Tokens;
+                        }
+                        break;
+                    case 6:
+                        pre_processor_state = 0;
+                        CIMPL_Colorise_C_Tokens;
+                }
+            }
+
+            else if
+            (
+                (pre_processor_command == CIMPL_tkn_undef)
+                ||
+                (pre_processor_command == CIMPL_tkn_ifdef)
+                ||
+                (pre_processor_command == CIMPL_tkn_ifndef)
+                ||
+                (pre_processor_command == CIMPL_tkn_elifdef)
+                ||
+                (pre_processor_command == CIMPL_tkn_elifndef)
+            )
+            {
+                CIMPL_DeColorise;
+                if token_in(Macros) CIMPL_Colorise_Green;
+                else CIMPL_Colorise_C_Tokens;
+            }
+
+            else if
+            (
+                (pre_processor_command == CIMPL_tkn_endif)
+                ||
+                (pre_processor_command == CIMPL_tkn_error)
+                ||
+                (pre_processor_command == CIMPL_tkn_warning)
+                ||
+                (pre_processor_command == CIMPL_tkn_line)
+                ||
+                (pre_processor_command == CIMPL_tkn_pragma)
+            )
+            {
+                CIMPL_DeColorise;
+                CIMPL_Colorise_C_Tokens;
+            }
+
+            else if
+            (
+                (pre_processor_command == CIMPL_tkn_if)
+                ||
+                (pre_processor_command == CIMPL_tkn_elif)
+                ||
+                (pre_processor_command == CIMPL_tkn_else)
+            )
+            {
+                CIMPL_DeColorise;
+                if token_in(Pre_Processor_Operators) CIMPL_Colorise_Red;
+                else CIMPL_Colorise_C_Tokens;
+            }
+
+        }
+
+    }
+
+}
+
+#endif

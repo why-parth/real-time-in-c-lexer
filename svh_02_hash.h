@@ -17,6 +17,7 @@ extern hash __token_meta;
 #define push_fnv __token_meta *= 1099511628211ULL; __token_meta ^= (uint8_t)
 #define get_fnv (__token_meta)
 #define reset_fnv __token_meta = 14695981039346656037ULL
+#define none_fnv 14695981039346656037ULL
 
 hash __fnv(char * str, ...);
 

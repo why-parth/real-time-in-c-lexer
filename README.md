@@ -1,7 +1,13 @@
 <!-- ![Title Image](z_ignore_verlet_no_bg.png) -->
 
-##### Below shown is purely implemented in C23 via a self-coded framework called _Verlet Lexer_ _(Vlex)_. Not the best practices were followed, and many changes in the future are to come, but even this primitive lexer could colorize the tokens of a C code.
-![Example Code](z_ignore_project_001_output.png)
+
+# Status
+<br>
+Reacent release : v1.1.0
+<br>
+
+![Example Code](z_ignore_project_002_output.png)
+##### Above shown colored token highlighting is implemented purely in C23 via a self-coded framework called _Verlet Lexer_.
 
 <br>
 
@@ -101,11 +107,11 @@ Verlet Lexer comes with a standard implementation of char classes.
 </tr>
 <tr>
     <td rowspan="2"><code>operate</code></td>
-    <td><code>single</code></td>
+    <td><code>oneval</code></td>
     <td><code>~</code> <code>!</code></td>
 </tr>
 <tr>
-    <td><code>double</code></td>
+    <td><code>twoval</code></td>
     <td><code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>%</code> <code>^</code> <code>&amp;</code> <code>|</code></td>
 </tr>
 <tr>

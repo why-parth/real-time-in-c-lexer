@@ -89,4 +89,6 @@ size_t VCo_search_hash_list(struct VCo_hash_link * _links, hash _token, ...);
     struct VCo_hash_link * : token_in_list((struct VCo_hash_link *)_name) \
 ))
 
+#define token_not_in(_name, ...) (!token_in(_name __VA_OPT__(,) __VA_ARGS__))
+
 #endif
