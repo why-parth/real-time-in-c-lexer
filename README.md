@@ -3,7 +3,7 @@
 
 # Status
 
-Reacent release : v1.1.0
+Reacent release : [v1.1.0](https://github.com/why-parth/verlet-lexer/releases/tag/v1.1.0)
 
 <br>
 
