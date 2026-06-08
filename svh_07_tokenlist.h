@@ -14,8 +14,9 @@ This header initialises token lists for Verlet Lexer.
 extern size_t VCo_enable_i;
 extern hash * VCo_recent_set;
 
-#define __token_set(_name, _size)               \
-    hash _name[_size];                          \
+#define __token_set(_name, __size)                           \
+    hash _name[__size];                                      \
+    size_t mergetokens(VCo_enable_, _name, _size) = __size;  \
     int mergetoken(VCo_enable_, _name) (void)
 
 #define keyword(_kw, ...) VCo_recent_set[VCo_enable_i++ __VA_OPT__(* 0 + __VA_ARGS__)] = fnv(#_kw)
@@ -34,7 +35,7 @@ extern hash * VCo_recent_set;
 
 int VCo_search_set(hash * _set, size_t _size);
 
-#define token_in_set(_set_name) ( VCo_search_set(_set_name, sizeof(_set_name)/sizeof(hash)) )
+#define token_in_set(_set_name) ( VCo_search_set((hash *)_set_name, mergetokens(VCo_enable_, _set_name, _size)) )
 
 struct VCo_hash_link {
     hash value;
@@ -47,7 +48,8 @@ struct VCo_hash_link * VCo_new_hash_link(hash _token);
 
 void VCo_free_hash_links(struct VCo_hash_link * _hash_link);
 
-#define __token_list(_name)                                               \
+#define __token_list(_name)                                             \
+    size_t mergetokens(VCo_enable_, _name, _size);                      \
     size_t mergetokens(VCo_, _name, _count) = 0;                        \
     struct VCo_hash_link * _name = NULL;                                \
     struct VCo_hash_link * mergetokens(VCo_, _name, _last) = NULL       \
@@ -83,9 +85,10 @@ size_t VCo_search_hash_list(struct VCo_hash_link * _links, hash _token, ...);
 // - Macro Handling
 
 #define token_in(_name, ...) (_Generic((_name),                             \
-    hash * : token_in_set((hash *)_name),                                   \
-    struct VCo_hash_link * : token_in_list((struct VCo_hash_link *)_name),  \
-    default : printf("none")                                                \
+    hash * : token_in_set(_name),                                   \
+    struct VCo_hash_link * : token_in_list((struct VCo_hash_link *)_name) \
 ))
+
+#define token_not_in(_name, ...) (!token_in(_name __VA_OPT__(,) __VA_ARGS__))
 
 #endif
