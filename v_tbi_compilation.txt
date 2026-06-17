@@ -1,0 +1,6 @@
+#ifndef compilemain
+    return 0;
+}
+
+#define main __v_other_main
+#endif

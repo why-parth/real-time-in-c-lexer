@@ -1,10 +1,4 @@
-//
-// Verlet Utility Header
-//
-// 1.0
-/*
-This header provides many of the frequently used functions throught the entire Verlet Lexer Framework.
-*/
+
 
 #ifndef _INC_V_UTILS
 #define _INC_V_UTILS
@@ -88,6 +82,6 @@ This header provides many of the frequently used functions throught the entire V
 #define debug_bar "\033[34m|\033[39m"
 
 /* Verlet Standard Implementation. */
-#define v_implement "svh____init.h"
+#define v_implement "_implement_.h"
 
 #endif

@@ -73,20 +73,20 @@ void VS__free_recent_vlut(void);
 #define new_key   if(                                                               \
                         (VS_RECENT_VLUT.n_keys == VS_RECENT_VLUT.max_keys)          \
                      && (VS_RECENT_VLUT.max_keys += VS_RECENT_VLUT_INC_MAX_KEYS)    \
-                     && (printf("<max keys : %zu>", VS_RECENT_VLUT.max_keys))       \
+                     && VS_RECENT_VLUT.max_keys                                     \
                     )                                                               \
-    VS_RECENT_VLUT.table = (avsme * *)realloc(                                           \
+    VS_RECENT_VLUT.table = (avsme * *)realloc(                                              \
                                             VS_RECENT_VLUT.table,                           \
-                                            VS_RECENT_VLUT.max_keys * sizeof(avsme *)    \
+                                            VS_RECENT_VLUT.max_keys * sizeof(avsme *)       \
                                             );                                              \
-    __new_entry;                                                                        \
-    (VS_RECENT_VLUT.table[VS_RECENT_VLUT.n_keys])[1] = (VS_RECENT_VLUT.n_values = 0);   \
+    __new_entry;                                                                            \
+    (VS_RECENT_VLUT.table[VS_RECENT_VLUT.n_keys])[1] = (VS_RECENT_VLUT.n_values = 0);       \
     (VS_RECENT_VLUT.table[VS_RECENT_VLUT.n_keys++])[0] = 
 
 #define new_value if(                                                                   \
                         (VS_RECENT_VLUT.n_values == VS_RECENT_VLUT.max_values)          \
                      && (VS_RECENT_VLUT.max_values += VS_RECENT_VLUT_INC_MAX_VALUES)    \
-                     && (printf("<max values : %zu>", VS_RECENT_VLUT.max_values))       \
+                     && VS_RECENT_VLUT.max_values                                       \
                     )                                                                   \
     VS_RECENT_VLUT.table[VS_RECENT_VLUT.n_keys - 1] = (avsme *)realloc(                         \
                                             VS_RECENT_VLUT.table[VS_RECENT_VLUT.n_keys - 1],    \
@@ -264,8 +264,6 @@ extern size_t VS_active_vlut_stride;
             )                                                                           \
         ).old_token                                                                     \
     )
-
-#define context(name) void name (void)
 
 #define expect(_token, ...)                                                                             \
     static char mergetoken(EXPEC_, __LINE__) = 0;                                                       \

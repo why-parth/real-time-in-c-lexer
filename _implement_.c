@@ -1,20 +1,14 @@
-#include <stdlib.h>
 
-#if defined(_INC_V_AVSME) && !defined(_IMPL_V_AVSME)
-#define _IMPL_V_AVSME
+#if defined(_INC_V_NON_STATAL) && !defined(_IMPL_V_NON_STATAL)
+#define _IMPL_V_NON_STATAL
 
-avsme AVSME_NONE = AVSME_SET(0, ASCII, 0);
-avsme AVSME_TRUE = AVSME_SET(0, ASCII, 1);
-avsme AVSME_FALSE = AVSME_SET(0, ASCII, 2);
-
-#endif
-
-#if defined(_INC_V_HASH) && !defined(_IMPL_V_HASH)
-#define _IMPL_V_HASH
+avsme AVSME_NONE = AVSME_SET(AVSME_EXISTS, ASCII, 0);
+avsme AVSME_TRUE = AVSME_SET(AVSME_EXISTS, ASCII, 1);
+avsme AVSME_FALSE = AVSME_SET(AVSME_EXISTS, ASCII, 2);
 
 hash __token_meta = 14695981039346656037ULL;
 
-hash __fnv(char * str, ...) {
+hash hash_function_fnv(char * str) {
     if (!str) return 0;
     uint64_t hash = 14695981039346656037ULL;
     if (!*str) return hash;
@@ -29,12 +23,11 @@ hash __fnv(char * str, ...) {
 
 #endif
 
-#if defined(_INC_V_COLLECT) && !defined(_IMPL_V_COLLECT) && defined(_INIT_V_COLLECT)
+#if defined(_INC_V_COLLECT)  && defined(_INIT_V_COLLECT) && !defined(_IMPL_V_COLLECT)
 #define _IMPL_V_COLLECT
 
 struct collect_out COLLECT_OUT_NULL = {AVSME_NULL, NULL, NULL};
 struct collect_out COLLECT_OUT = {AVSME_NULL, NULL, NULL};
-
 
 struct collect_out collect_immediate(char * _str) {
     if(!_str) return COLLECT_OUT_NULL;
@@ -102,6 +95,8 @@ size_t print_str_collective_immediate(char * _str) {
     return ret; // returning the length of printed string
 }
 
+// Variation Collection
+
 // #define DB_collect_variation_in
 #undef debug_name
 #define debug_name "COLLECT"
@@ -121,7 +116,7 @@ struct collect_out collect_variation  (
 
     avsme char_class = charclass(*_str);	// Char class of the first char.
     avsme ret_char_class = char_class;	    // Char class of the return collect out.
-    push_fnv *(_str);
+    hash_push *(_str);
     avsme new_char_class; 				    // Char class of the new char.
     char * current_token = _str; 			// Pointer to the current token (updates _str)
     avsme check_value;
@@ -132,6 +127,13 @@ struct collect_out collect_variation  (
     int check_value_ascii;
     int check_key_bool;
     int check_value_bool;
+    int check_value_exists;
+
+    int value_set_jump = 1;
+
+    uintptr_t mode_intptr = 0;
+    void (* mode_ptr) (void);
+    mode_ptr = NULL;
     
     #ifdef DB_collect_variation_in
         debug_print("scanning (%zu) input : ", count - 1);
@@ -157,7 +159,7 @@ struct collect_out collect_variation  (
             check_key = table[i*_stride];
             check_key_bool = (AVSME_BOOLEAN(check_key) == AVSME_TRUE);
             check_key_ascii = AVSME_GET(check_key, ASCII);
-            
+
             #ifdef DB_collect_variation_in
                 debug_continue(" [%d] %c%c%c -> %d%d ?",
                     i + 1,
@@ -181,8 +183,9 @@ struct collect_out collect_variation  (
                 for (int j = 2; j < table[i*_stride + 1] + 2; j++) {
                 /* If the char class entry is found, iterating over all the values of the found entry. */
                     check_value = table[i*_stride + j];
-                    check_value_bool = (AVSME_BOOLEAN(check_value) == AVSME_TRUE);
+                    check_value_bool = (AVSME_BOOLEAN(check_value) == AVSME_TRUE) && AVSME_GET(check_value, EXISTS);
                     check_value_ascii = AVSME_GET(check_value, ASCII);
+                    check_value_exists = AVSME_EXISTENT(check_value);
 
                     #ifdef DB_collect_variation_in
                         debug_continue(" [%d] %c%c%c -> %d%d ?",
@@ -197,9 +200,23 @@ struct collect_out collect_variation  (
                         );
                     #endif
                     
-                    if ( check_value_bool || AVSME_OVERLAP(check_value, new_char_class) )  {
+                    if (!check_value_exists); 
+                    else if ( check_value_bool || AVSME_OVERLAP(check_value, new_char_class) )  {
                         /* If the entry contains the new char class. */
 
+                        if (j != table[i*_stride + 1] + 1) {
+                            if (!AVSME_EXISTENT(table[i*_stride + j + 1])) {
+                                mode_ptr = NULL;
+                                VS_buffer_to_mode(mode_ptr, table + i*_stride + j + 1);
+                                mode_ptr();
+                            }
+                            else if ( !AVSME_EXISTENT(table[i*_stride + j + 2]) && (AVSME_BOOLEAN(table[i*_stride + j + 1]) == AVSME_FALSE) ) {
+                                mode_ptr = NULL;
+                                VS_buffer_to_mode(mode_ptr, table + i*_stride + j + 2);
+                                mode_ptr();
+                            }
+                        }
+                        
                         #ifdef DB_collect_variation_in
                             debug_carry(2, "value matched");
                             printf(" " debug_bar);
@@ -223,21 +240,29 @@ struct collect_out collect_variation  (
                                 debug_continue(" variant? \033[0mno");
                             #endif
 
-                            push_fnv *(_str);
+                            hash_push *(_str);
 
-                            if (AVSME_BOOLEAN(table[i*_stride + j + 1]) == AVSME_FALSE) {
+                            if (
+                                ( AVSME_BOOLEAN(table[i*_stride + j + 1]) == AVSME_FALSE )
+                                ||
+                                (
+                                    !AVSME_EXISTENT(table[i*_stride + j + 1])
+                                    &&
+                                    AVSME_BOOLEAN(table[i*_stride + j + 1 + VS_mode_span]) == AVSME_FALSE
+                                )
+                            )
+                            {
                                 #ifdef DB_collect_variation_in
                                     debug_print("charclass assigned : %d%d", AVSME_GET(new_char_class, MAINCLASS), AVSME_GET(new_char_class, SUBCLASS));
                                 #endif
-                                j++;
                                 char_class = new_char_class;
                             }
 
-                            goto VLUT_NEXT_CHAR;
+                            goto VLU_NEXT_CHAR;
                         }; // else, continue.
                     }
                     
-                    else if (j == table[i*_stride + 1] + 1) VLUT_NO_VALUE_HANDLE; // goto VLUT_ERROR_CHECK for safety
+                    else if (j == table[i*_stride + 1] + 1) VLU_NO_VALUE_HANDLE; // goto VLU_ERROR_CHECK for safety
 
                     #ifdef DB_collect_variation_in
                         printf(" " debug_bar);
@@ -246,22 +271,22 @@ struct collect_out collect_variation  (
                 }
             }
 
-            else if (i == n_keys - 1) VLUT_NO_KEY_HANDLE; // goto VLUT_ERROR_CHECK for safety
+            else if (i == n_keys - 1) VLU_NO_KEY_HANDLE; // goto VLU_ERROR_CHECK for safety
 
             #ifdef DB_collect_variation_in
                 printf(" " debug_bar);
             #endif
 
-        VLUT_NEXT_ENTRY:
+        VLU_NEXT_ENTRY:
         }
         
-    VLUT_NEXT_CHAR:
+    VLU_NEXT_CHAR:
     count++;
     }
 
     /* Default behaviour of collect_variation */
 
-    VLUT_ERROR_CHECK:
+    VLU_ERROR_CHECK:
     if (countptr) (*countptr) = count + 1;
 
     if (!*_str) {
@@ -269,8 +294,8 @@ struct collect_out collect_variation  (
         return ret; // return.
     }
 
-    VLUT_ERROR_HANDLE;
-    return VLUT_ERROR_RETURN_HANDLE;
+    VLU_ERROR_HANDLE;
+    return VLU_ERROR_RETURN_HANDLE;
 }
 
 struct collect_out collect_variation_in   (
@@ -299,7 +324,7 @@ struct collect_out collect_variation_in   (
         return COLLECT_OUT_NULL;
     }
     
-    reset_fnv;
+    hash_reset;
     out = collect_variation(out.new_token, n_keys, table, _stride, &count);
     if (out.old_token == out.new_token) out.new_token += 1;
     // Collection of token and pointers to tokens
@@ -332,8 +357,52 @@ size_t print_str_collective_variation (
 
 #endif
 
-#if defined(_INC_V_SCRIPT) && defined(_INIT_V_SCRIPT) && !defined(_IMPL_V_SCRIPT)
-#define _IMPL_V_SCRIPT
+
+#if defined(_INC_V_DSL) && defined(_INIT_V_DSL) && !defined(_IMPL_V_DSL)
+#define _IMPL_V_DSL
+
+size_t VCo_enable_i = 0;
+hash * VCo_recent_set = NULL;
+
+int VCo_search_set(hash * _set, size_t _size) {
+    for (int i = 0; i < _size; i++) if token_is(_set[i]) return 1;
+    return 0;
+}
+
+struct VCo_hash_link * VCo_new_hash_link(hash _token) {
+    struct VCo_hash_link * ret = malloc(sizeof(struct VCo_hash_link));
+    ret->value = _token;
+    ret->next = NULL;
+    return ret;
+}
+
+void VCo_free_hash_links(struct VCo_hash_link * _hash_link) {
+    if (!_hash_link) return;
+    struct VCo_hash_link * current = _hash_link;
+    struct VCo_hash_link * to_free;
+
+    while (current->next) {
+        to_free = current;
+        current = current->next;
+        free(to_free);
+    }
+    free(current);
+}
+
+size_t VCo_search_hash_list(struct VCo_hash_link * _links, hash _token, ...) {
+    if (!_links) return 0;
+    size_t ret = 1;
+
+    struct VCo_hash_link * curr = _links;
+
+    while (curr->value != _token) {
+        if (!curr->next) return 0;
+        curr = curr->next;
+        ret++;
+    }
+
+    return ret;
+}
 
 char * __recent_charclass_extend_esc_str = NULL;
 char __charclass_extend_esc_n[4] = "\\n";
@@ -341,20 +410,20 @@ char __charclass_extend_esc_t[4] = "\\t";
 char __charclass_extend_esc_r[4] = "\\r";
 char __charclass_extend_esc_a[4] = "\\a";
 
-size_t VS_active_vlut_n_keys;
-avsme * VS_active_vlut_table;
-size_t VS_active_vlut_stride;
+size_t VS_active_VLU_n_keys;
+avsme * VS_active_VLU_table;
+size_t VS_active_VLU_stride;
 
-struct VS_RECENT_VLUT VS_RECENT_VLUT;
+struct VS_RECENT_VLU VS_RECENT_VLU;
 
-void VS__free_recent_vlut(void) {
-    for (int i = 0; i < VS_RECENT_VLUT.n_keys; i++) 
-    if (VS_RECENT_VLUT.table[i]) free(VS_RECENT_VLUT.table[i]), VS_RECENT_VLUT.table[i] = NULL;
-    VS_RECENT_VLUT.table = NULL;
+void VS__free_recent_VLU(void) {
+    for (int i = 0; i < VS_RECENT_VLU.n_keys; i++) 
+    if (VS_RECENT_VLU.table[i]) free(VS_RECENT_VLU.table[i]), VS_RECENT_VLU.table[i] = NULL;
+    VS_RECENT_VLU.table = NULL;
 }
 
-_Noreturn void VERLET_VLUT_exit(void) {
-    printf("\033[31m<! VLUT case is not registered. !>\033[0m");
+_Noreturn void VERLET_VLU_exit(void) {
+    printf("\033[31m<! VLU case is not registered. !>\033[0m");
     exit(-1);
 }
 
@@ -543,12 +612,13 @@ size_t VERLET_avsme_print(avsme _flag) {
     return ret + 1;
 }
 
-void VS_RECENT_VLUT_print(void) {
+void VS_RECENT_VLU_print(void) {
     
     for (int k = 0; ; ) {
         
+        if (!AVSME_GET(VS_RECENT_VLU.table[k][0], EXISTS)) continue;
 
-        if (AVSME_BOOLEAN(VS_RECENT_VLUT.table[k][0]) == AVSME_TRUE) {
+        if (AVSME_BOOLEAN(VS_RECENT_VLU.table[k][0]) == AVSME_TRUE) {
                 style_bold;
                 color_fore(200, 200, 0);
                 printf("all");
@@ -557,7 +627,7 @@ void VS_RECENT_VLUT_print(void) {
         }
         else {
             color_back_grey(200 + (k%2)*40);
-            VERLET_avsme_print(VS_RECENT_VLUT.table[k][0]);
+            VERLET_avsme_print(VS_RECENT_VLU.table[k][0]);
             color_back_reset;
         }
         
@@ -565,8 +635,8 @@ void VS_RECENT_VLUT_print(void) {
         
         avsme current;
         
-        for (int v = 2; v < VS_RECENT_VLUT.table[k][1] + 2; v++) {
-            current = VS_RECENT_VLUT.table[k][v];
+        for (int v = 2; v < VS_RECENT_VLU.table[k][1] + 2; v++) {
+            current = VS_RECENT_VLU.table[k][v];
             
             style_bold;
             if (current & AVSME_VARIANCE) printf(" vary ");
@@ -584,14 +654,14 @@ void VS_RECENT_VLUT_print(void) {
         }
         
         k++;
-        if (k == VS_RECENT_VLUT.n_keys) break;
+        if (k == VS_RECENT_VLU.n_keys) break;
         putchar('\n');
         putchar('\n');
         
     }
 }
 
-void __VS_VLUT_print   (
+void __VS_VLU_print   (
                             size_t n_keys,
                             avsme * table,
                             size_t _stride
@@ -600,7 +670,7 @@ void __VS_VLUT_print   (
 
     for (int k = 0; ; ) {
         
-        if (AVSME_BOOLEAN(VS_RECENT_VLUT.table[k][0]) == AVSME_TRUE) {
+        if (AVSME_BOOLEAN(table[k * _stride]) == AVSME_TRUE) {
             style_bold;
             color_fore(200, 200, 0);
             printf("all");
@@ -618,7 +688,7 @@ void __VS_VLUT_print   (
         avsme current;
         
         for (int v = 2; v < table[ k * _stride + 1] + 2; v++) {
-            
+
             current = table[ k * _stride + v ];
             
             style_bold;
@@ -647,8 +717,8 @@ void __VS_VLUT_print   (
 #endif
 
 
-#if defined(_INC_V_READWRITE) && !defined(_IMPL_V_READWRITE)
-#define _IMPL_V_READWRITE
+#if defined(_INC_V_FILEIO) && !defined(_IMPL_V_FILEIO)
+#define _IMPL_V_FILEIO
 
 FILE * RW_recent_open = NULL;
 
@@ -658,53 +728,6 @@ RW_init_Writer
 
 #endif
 
-#if defined(_INC_V_TOKENLIST) && !defined(_IMPL_V_TOKENLIST)
-#define _IMPL_V_TOKENLIST
-
-size_t VCo_enable_i = 0;
-hash * VCo_recent_set = NULL;
-
-int VCo_search_set(hash * _set, size_t _size) {
-    for (int i = 0; i < _size; i++) if token_is(_set[i]) return 1;
-    return 0;
-}
-
-struct VCo_hash_link * VCo_new_hash_link(hash _token) {
-    struct VCo_hash_link * ret = malloc(sizeof(struct VCo_hash_link));
-    ret->value = _token;
-    ret->next = NULL;
-    return ret;
-}
-
-void VCo_free_hash_links(struct VCo_hash_link * _hash_link) {
-    if (!_hash_link) return;
-    struct VCo_hash_link * current = _hash_link;
-    struct VCo_hash_link * to_free;
-
-    while (current->next) {
-        to_free = current;
-        current = current->next;
-        free(to_free);
-    }
-    free(current);
-}
-
-size_t VCo_search_hash_list(struct VCo_hash_link * _links, hash _token, ...) {
-    if (!_links) return 0;
-    size_t ret = 1;
-
-    struct VCo_hash_link * curr = _links;
-
-    while (curr->value != _token) {
-        if (!curr->next) return 0;
-        curr = curr->next;
-        ret++;
-    }
-
-    return ret;
-}
-
-#endif
 
 #if defined(_INC_V_CIMPL) && !defined(_IMPL_V_CIMPL)
 #define _IMPL_V_CIMPL
@@ -844,7 +867,7 @@ Handle_Pre_Processing {
             if token_is(idvalid) {
                 CIMPL_DeColorise;
                     if (token_in(Pre_Processor_Commands)) {
-                        pre_processor_command = get_fnv;
+                        pre_processor_command = hash_value;
                         pre_processor_state = 3;
                         CIMPL_Colorise_Red;
                     }
@@ -871,7 +894,7 @@ Handle_Pre_Processing {
                     case 3:
                         if token_is(idvalid) {
                             pre_processor_state = 4;
-                            append_token_list(Macros, get_fnv);
+                            append_token_list(Macros, hash_value);
                             CIMPL_Colorise_Green;
                         }
                         else if token_is_not(disjoin, space) {
@@ -958,25 +981,5 @@ Handle_Pre_Processing {
     }
 
 }
-
-#endif
-
-
-#if defined(_INC_V_PRECOMPILATION) && !defined(_IMPL_V_PRECOMPILATION)
-#define _IMPL_V_PRECOMPILATION
-
-#ifndef NO_PRECOMPILATION
-
-#if defined SELF_PRECOMPILATION
-
-// pass
-
-#elif defined VERLET_PRECOMPILATION
-
-
-
-#endif
-
-#endif
 
 #endif

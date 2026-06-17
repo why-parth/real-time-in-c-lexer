@@ -168,36 +168,36 @@ Verlet Lexer has a total of 32 keywords. However, it is used with _Verlet File I
 #### Keywords of Verlet Lexer
 
 Keywords related to state definition
-```C
+```
 charclass
 VLU   For   Join   Vary   Char   All   Set   Call
 Decl  Save  Make
 Show  ShowVLU
 ```
 Keywords related to global hash variable _(Non-hosted VScript)_
-```C
+```
 hash_reset  hash_push
 hash_value  hash_none
 hash_of     hash_function
 ```
 Keywords related to token comparison
-```C
+```
 token_is  token_is_not
 expect    keep_expecting    stop_expecting
 ```
 Keywords related to token membership
-```C
+```
 token_list
 token_in  token_not_in
 ```
 Keywords related to token management
-```C
+```
 token_paste
 token_print
 token_show
 ```
 Keywords related to Collection
-```C
+```
 Using
 Collect
 ```
