@@ -1,15 +1,9 @@
-//
-// Verlet Token List Header
-//
-// 1.0
-/*
-This header initialises token lists for Verlet Lexer.
-*/
+
 
 #ifndef _INC_V_CIMPL
 #define _INC_V_CIMPL
 
-#include "svh_07_tokenlist.h"
+#include "_05_fileio.h"
 
 extern hash CIMPL_tkn_include;
 extern hash CIMPL_tkn_define;
@@ -32,35 +26,35 @@ extern hash CIMPL_tkn_else;
 
 #define Enable_C_Token_Lists                        \
     \
-    CIMPL_tkn_newline = fnv("\n");                  \
-    CIMPL_tkn_pre_processor_diretive = fnv("#");    \
-    CIMPL_tkn_include = fnv("include");             \
-    CIMPL_tkn_define = fnv("define");               \
-    CIMPL_tkn_defined = fnv("defined");             \
-    CIMPL_tkn_undef = fnv("undef");                 \
-    CIMPL_tkn_ifdef = fnv("ifdef");                 \
-    CIMPL_tkn_ifndef = fnv("ifndef");               \
-    CIMPL_tkn_elifdef = fnv("elifdef");             \
-    CIMPL_tkn_elifndef = fnv("elifndef");           \
-    CIMPL_tkn_endif = fnv("endif");                 \
-    CIMPL_tkn_error = fnv("error");                 \
-    CIMPL_tkn_warning = fnv("warning");             \
-    CIMPL_tkn_line = fnv("line");                   \
-    CIMPL_tkn_pragma = fnv("pragma");               \
-    CIMPL_tkn_if = fnv("if");                       \
-    CIMPL_tkn_elif = fnv("elif");                   \
-    CIMPL_tkn_else = fnv("else");                   \
+    CIMPL_tkn_newline = hash_function("\n");                  \
+    CIMPL_tkn_pre_processor_diretive = hash_function("#");    \
+    CIMPL_tkn_include = hash_function("include");             \
+    CIMPL_tkn_define = hash_function("define");               \
+    CIMPL_tkn_defined = hash_function("defined");             \
+    CIMPL_tkn_undef = hash_function("undef");                 \
+    CIMPL_tkn_ifdef = hash_function("ifdef");                 \
+    CIMPL_tkn_ifndef = hash_function("ifndef");               \
+    CIMPL_tkn_elifdef = hash_function("elifdef");             \
+    CIMPL_tkn_elifndef = hash_function("elifndef");           \
+    CIMPL_tkn_endif = hash_function("endif");                 \
+    CIMPL_tkn_error = hash_function("error");                 \
+    CIMPL_tkn_warning = hash_function("warning");             \
+    CIMPL_tkn_line = hash_function("line");                   \
+    CIMPL_tkn_pragma = hash_function("pragma");               \
+    CIMPL_tkn_if = hash_function("if");                       \
+    CIMPL_tkn_elif = hash_function("elif");                   \
+    CIMPL_tkn_else = hash_function("else");                   \
     \
-    enable_token_set(DataTypes);                \
-    enable_token_set(StorageClasses);           \
-    enable_token_set(TypeQualifiers);           \
-    enable_token_set(Controls);                 \
-    enable_token_set(Structures);               \
-    enable_token_set(Specifiers);               \
-    enable_token_set(CompileTimeOperators);     \
-    enable_token_set(Assertion);                \
-    enable_token_set(Pre_Processor_Commands);   \
-    enable_token_set(Pre_Processor_Operators)   \
+    enable_token_list(DataTypes);                \
+    enable_token_list(StorageClasses);           \
+    enable_token_list(TypeQualifiers);           \
+    enable_token_list(Controls);                 \
+    enable_token_list(Structures);               \
+    enable_token_list(Specifiers);               \
+    enable_token_list(CompileTimeOperators);     \
+    enable_token_list(Assertion);                \
+    enable_token_list(Pre_Processor_Commands);   \
+    enable_token_list(Pre_Processor_Operators)   \
 
 #define CIMPL_Colorise_Red                            color_fore(240, 100, 100)
 #define CIMPL_Colorise_High_Red       style_bold   ,  color_fore(240, 180, 150)
@@ -95,7 +89,7 @@ extern hash CIMPL_in_quotes;
 extern hash CIMPL_this_quote;
 
 #define CIMPL_Colorise_Quot                                                     \
-    if (!CIMPL_in_quotes) {CIMPL_in_quotes = get_fnv; CIMPL_Colorise_Yellow;}   \
+    if (!CIMPL_in_quotes) {CIMPL_in_quotes = hash_value; CIMPL_Colorise_Yellow;}   \
     else if token_is(CIMPL_in_quotes) CIMPL_in_quotes = 0
 
 #define CIMPL_Colorise_C_Tokens                                                     \
@@ -185,5 +179,13 @@ Handle_Pre_Processing;
 #define Else_Join_1     \
         For All         \
             Join All
+
+#define Cimpl_simple_C_reader(_VLU_name) VLU {  \
+    Scan_Identifiers_3;                         \
+    Scan_Spaces_2;                              \
+    Scan_Numbers_2_4;                           \
+    Else_Vary_1;                                \
+    Make(_VLU_name, 8, 8);                      \
+}
 
 #endif

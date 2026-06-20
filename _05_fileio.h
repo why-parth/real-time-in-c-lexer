@@ -1,15 +1,9 @@
-//
-// Verlet Read Write Header
-//
-// 1.0
-/*
-This header initialises the reading writing inferface of Verlet Lexer.
-*/
 
-#ifndef _INC_V_READWRITE
-#define _INC_V_READWRITE
 
-#include "svh_05_script.h"
+#ifndef _INC_V_FILEIO
+#define _INC_V_FILEIO
+
+#include "_04_DSL.h"
 #include <stdio.h>
 
 #define RW_save_path_buffer(_path, _size, ...) char uniq(RW_path_) [_size] __VA_OPT__(; memcpy(uniq(RW_path_), _path, _size); const char * uniq(RW_temp_)) = _path

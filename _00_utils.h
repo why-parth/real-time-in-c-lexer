@@ -1,16 +1,17 @@
-//
-// Verlet Utility Header
-//
-// 1.0
-/*
-This header provides many of the frequently used functions throught the entire Verlet Lexer Framework.
-*/
+
 
 #ifndef _INC_V_UTILS
 #define _INC_V_UTILS
 
 // vfilename : Splits a files full path and return's only the file name, if file name is the full path, returns the full path.
 #define vfilename(path) ( strrchr(path, '/') ? strrchr(path, '/') + 1 : strrchr(path, '\\') ? strrchr(path, '\\') + 1 : path )
+
+// vshell_format_copy : Format string that formats itself into the copy command per OS
+#if defined(_WIN32) && !defined(__vshell_format_copy)                                               
+#define vshell_format_copy "copy %s \"tr-%s.c\" >nul"     
+#else                                                               
+#define vshell_format_copy "cp %s \"tr-%s.c\""                
+#endif   
 
 // IF_ARGS : Returns valid C expressions on the basis of __VA_ARGS__ existence.
 #define __TYPE_ARGS(...) __VA_OPT__((int*))((int)0)
@@ -81,6 +82,6 @@ This header provides many of the frequently used functions throught the entire V
 #define debug_bar "\033[34m|\033[39m"
 
 /* Verlet Standard Implementation. */
-#define v_implement "svh____init.h"
+#define v_implement "_implement_.h"
 
 #endif
