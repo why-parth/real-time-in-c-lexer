@@ -1,6 +1,6 @@
 # VScript
 
-#### _version 1.2.0_
+#### _version 1.3.0_
 
 _**VScript**_ is the DSL (Domain Specific Language) of Verlet Lexer that works remarkably well with C.
 
@@ -60,7 +60,7 @@ Let us entertain a practical example of token collection,
 ```C
 char code[] = "int a = 45;";  // Char buffer to be collected from
 ```
-Given the above `code`, can you figure out a way to correctly extract _valid C_ tokens? The problem is not extremely tough, one of the solutions is as straightforward as,
+Given the above `code`, can you figure out a way to correctly extract _valid C_ tokens ? The problem is not extremely tough, one of the solutions is as straightforward as,
 ```C
 char code[] = "int a = 45;";  // Char buffer to be collected from
 
@@ -168,36 +168,36 @@ Verlet Lexer has a total of 32 keywords. However, it is used with _Verlet File I
 #### Keywords of Verlet Lexer
 
 Keywords related to state definition
-```C
+```
 charclass
 VLU   For   Join   Vary   Char   All   Set   Call
 Decl  Save  Make
 Show  ShowVLU
 ```
 Keywords related to global hash variable _(Non-hosted VScript)_
-```C
+```
 hash_reset  hash_push
 hash_value  hash_none
 hash_of     hash_function
 ```
 Keywords related to token comparison
-```C
+```
 token_is  token_is_not
 expect    keep_expecting    stop_expecting
 ```
 Keywords related to token membership
-```C
+```
 token_list
 token_in  token_not_in
 ```
 Keywords related to token management
-```C
+```
 token_paste
 token_print
 token_show
 ```
 Keywords related to Collection
-```C
+```
 Using
 Collect
 ```
@@ -226,7 +226,7 @@ If you want no grouping amongst characters, the `charclass` of the passed `char`
 ```
 Well, its not.
 
-> Although the above shown `charclass` definition looks simple and valid, it just so happens to be not frame-work friendly.
+> Although the above shown `charclass` definition looks simple and valid, it just so happens to be not framework friendly.
 > Instead,
 > ```C
 > #define charclass(c) (AVSME_SET(AVSME_EXISTS, ASCII, c))
@@ -323,7 +323,7 @@ For a deeper understanding, read _COLLECT.md_ . You do not have to worry about t
 </tr>
 </table>
 
-The following distribution not only has classes, but it also has sub-classes. Sub-classes exist because classes were not enough to classify them fully.
+The following distribution not only has classes, but it also has sub-classes. Sub-classes exist because classes were not enough to classify the characters fully.
 
 <br>
 
@@ -398,7 +398,7 @@ VLU {
   // All the VLU definition comes here
 }
 ```
-VLU block **_can_ NOT _be defined in the global scope_**.
+VLU **_can_ NOT _be defined in the global scope_**.
 
 <br>
 
@@ -421,7 +421,7 @@ Here, 'A' and 'B' are just placeholders. In reality, we can either use `charclas
 ```C
 VLU {
 
-  For idvalid      // // For all idavlids
+  For idvalid      // // For all idvalids
     Join idvalid;  // Join all the idvalids that come after an idvalid
 
 }
@@ -441,15 +441,16 @@ Just like how `Join` tells the lexer to join the two characters, `Vary` tells th
 ```C
 VLU {
 
-  For idvalid             // // For all idavlids
+  For idvalid             // // For all idvalids
     Vary idvalid under    // Vary all the underscores that come after an idvalid
     Join idvalid lower    // Join all the lower alphabets that come after an idvalid
-    Join idvalid upper;   // Vary all the upper alphabets that come after an idvalid
+    Join idvalid upper;   // Join all the upper alphabets that come after an idvalid
 
 }
 ```
 We can stack as many `Join`/`Vary` as we want to define a rule, all of the **_sub-rules_** will be followed in sequence. Now the same text would give,
 > `this` `_is` `_a` `_full` `_token`
+
 As you can see, whenever `'_'` comes in front of an `idvalid`, the token varies _(breaks)_.
 
 <br>
@@ -461,7 +462,7 @@ VLU {
   For idvalid under    // // For all underscores
     Vary idvalid;      // Vary all the idvalids that comes after an underscore
 
-  For idvalid             // // For all idavlids
+  For idvalid             // // For all idvalids
     Vary idvalid under    // Vary all the underscores that come after an idvalid
     Join idvalid lower    // Join all the lower alphabets that come after an idvalid
     Join idvalid upper;   // Vary all the upper alphabets that come after an idvalid
@@ -482,7 +483,7 @@ VLU {
   For idvalid under    // // For all underscores
     Vary All;          // Vary everything that comes after an underscore
 
-  For idvalid             // // For all idavlids
+  For idvalid             // // For all idvalids
     Vary idvalid under    // Vary all the underscores that come after an idvalid
     Join All;             // Join everything that comes after an idvalid
 
@@ -629,7 +630,7 @@ VLU {
 
 
 Keywords related to File I/O _(Verlet File I/O)_
-```C
+```
 Open    OpenPtr   Opened
 Mode    In
 Reader  ReadChar   ReadLine   Once

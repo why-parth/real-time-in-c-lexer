@@ -514,7 +514,10 @@ avsme VERLET_charclass(char c) {
     return RET;
 }
 
-_Noreturn void VERLET_charclass_invalid_char_error(char c) {
+char VS_OFF_CHARCLASS_ERR = 0;
+
+avsme VERLET_charclass_invalid_char_error(char c) {
+    if (VS_OFF_CHARCLASS_ERR) return 0;
     printf("\033[31m<! Verlet Char Class of \033[33m'%c'\033[31m does not exist !>\033[0m", c);
     exit(-1);
 }
@@ -533,7 +536,7 @@ avsme VERLET_charclass_extend(char c) {
         case '\a': __recent_charclass_extend_esc_str = __charclass_extend_esc_a; 
         RET_SUBCLASS = 4; break;
         default :
-        VERLET_charclass_invalid_char_error(c);    
+        return VERLET_charclass_invalid_char_error(c);    
     }
     
     avsme RET = AVSME_SET(0, ASCII, c);
@@ -976,6 +979,100 @@ Handle_Pre_Processing {
                 else CIMPL_Colorise_C_Tokens;
             }
 
+        }
+
+    }
+
+}
+
+#endif
+
+
+#if defined(_INC_V_CCAST) && !defined(_IMPL_V_CCAST)
+#define _IMPL_V_CCAST
+
+
+void CC_ccast_charclass_ASCII(void) {
+
+    VS_OFF_CHARCLASS_ERR = 1;
+
+    avsme _char_class;
+
+
+    printf("\n#define charclass(c) STATE_charclass_table[c]\n");
+    printf("avsme STATE_charclass_table[128] = {\n\t");
+
+    for (int i = 0; i < 128; i++) {
+
+        _char_class = charclass(i);
+        printf("0X%.6x%c ", (AVSME_EXISTENT(_char_class)) ? _char_class : 0, ','*(i!=127));
+
+        if (!((i + 1)%10)) printf("\n\t");
+    }
+
+    printf("\n};");
+
+    VS_OFF_CHARCLASS_ERR = 0;
+
+}
+
+void CC_ccast_VLU(struct VLU_VLU_view _VLU) {
+
+    int x = 0;
+
+    char * _name = _VLU.iden;
+
+    printf("avsme VLU_%s_table[%zu] = {\n", _name, _VLU.max_keys*(2 + _VLU.max_values));
+
+    for (int y = 0; y < _VLU.n_keys; y++) {
+
+        printf("    %zu, %zu",
+            _VLU.table[y *(2 + _VLU.max_values)],
+            _VLU.table[y *(2 + _VLU.max_values) + 1]
+        );
+
+        for (x = 0; x < _VLU.table[y *(2 + _VLU.max_values) + 1]; x++)
+        printf(", %zu", _VLU.table[y*(2 + _VLU.max_values) + 2 + x]);
+
+        for (; x < _VLU.max_values; x++)
+        printf(", 0");
+
+        if (y + 1 != _VLU.n_keys) putchar(',');
+        putchar('\n');
+    }
+
+    printf("}; ");
+
+    printf("struct VLU_vlu_veiw %s = {", _name);
+    printf(" %d,", _VLU.n_keys);
+    printf(" %d,", _VLU.n_values);
+    printf(" %d,", _VLU.max_keys);
+    printf(" %d,", _VLU.max_values);
+    printf(" VLU_%s_table };", _name);
+
+}
+
+void CC_ccast(void) {
+
+    CC_Link Curr = CC_List;
+
+    CC_ccast_charclass_ASCII();
+
+    putchar('\n');
+
+    while (Curr = Curr->next) {
+
+        switch (Curr->type)
+        {
+        case 2:
+            putchar('\n');
+            struct VLU_VLU_view _VLU = *((struct VLU_VLU_view *)(Curr->object));
+            CC_ccast_VLU(_VLU);
+            putchar('\n');
+            break;
+        
+        default:
+            printf("Not a valid CC_Link type");
         }
 
     }

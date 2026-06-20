@@ -22,6 +22,8 @@ int main(int argc, char * argv[]) {
 
     append_token_list(Functions, "printf");
 
+    printf("\n\n\n");
+
     Vlut {
     
         Scan_Identifiers_3;
@@ -60,6 +62,10 @@ int main(int argc, char * argv[]) {
         CloseReader;
     }
 
+
+
+    printf("\n\n\n");
+    
     return 0;
 
 }   
@@ -75,7 +81,9 @@ int main(int argc, char * argv[]) {
 // fixed : For Join Vary now correctly have EXIST mask on by default
 // added : Call keyword
 // to-fix : VLU print functions
+// added : VS_OFF_CHARCLASS_ERR, now we can toggle the ivalid case exit, 0 by default;
 
+// to-add : static charclass and vlu flags -> currently charclass is only static and VLU is only dynamic, 
 
 
 

@@ -4,7 +4,10 @@
 #undef _REQ_INIT_V_DSL
 #define _INIT_V_DSL
 
+#ifndef charclass
 #define charclass VERLET_charclass
+#endif
+
 #define VSCRIPT_INVALID_CHAR_CASE return VERLET_charclass_extend(c)
 
 #endif

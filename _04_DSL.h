@@ -282,7 +282,9 @@ _Noreturn void VERLET_VLU_exit(void);
 
 avsme VERLET_charclass(char c);
 
-_Noreturn void VERLET_charclass_invalid_char_error(char c);
+extern char VS_OFF_CHARCLASS_ERR;
+
+avsme VERLET_charclass_invalid_char_error(char c);
 
 avsme VERLET_charclass_extend(char c);
 

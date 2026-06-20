@@ -1,10 +1,4 @@
-//
-// Verlet Token List Header
-//
-// 1.0
-/*
-This header initialises Cimpl for Verlet Lexer.
-*/
+
 
 #ifndef _INC_V_CIMPL
 #define _INC_V_CIMPL

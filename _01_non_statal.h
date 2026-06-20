@@ -79,4 +79,25 @@ hash hash_function_fnv(char * _str);
     default : (hash)_any                \
     ))
 
+// Data Structure : CCast's Linked List (CC_ccll)
+
+typedef struct CC_ccll {
+    void * object;
+    char type;
+    struct CC_ccll * next;
+} * CC_Link;
+
+extern CC_Link CC_List;
+
+struct CC_ccll CC_base = {NULL, 0, NULL};
+CC_Link CC_List = &CC_base;
+CC_Link CC_List_last = &CC_base;
+
+#define CC_List_append(_type)                               \
+    CC_List_last->next = malloc(sizeof(struct CC_ccll));    \
+    CC_List_last = CC_List_last->next;                      \
+    CC_List_last->type = _type;                             \
+    CC_List_last->next = NULL;                              \
+    CC_List_last->object = 
+
 #endif
