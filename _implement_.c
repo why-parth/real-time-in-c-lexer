@@ -987,7 +987,6 @@ Handle_Pre_Processing {
 
 #endif
 
-
 #if defined(_INC_V_CCAST) && !defined(_IMPL_V_CCAST)
 #define _IMPL_V_CCAST
 

@@ -5,7 +5,7 @@
 
 // Data Structure : avsme
 
-#include "svh_00_utils.h"
+#include "_00_utils.h"
 #include <stdint.h>
 
 typedef uint_least16_t avsme;
@@ -94,6 +94,13 @@ CC_Link CC_List = &CC_base;
 CC_Link CC_List_last = &CC_base;
 
 #define CC_List_append(_type)                               \
+    CC_List_last->next = malloc(sizeof(struct CC_ccll));    \
+    CC_List_last = CC_List_last->next;                      \
+    CC_List_last->type = _type;                             \
+    CC_List_last->next = NULL;                              \
+    CC_List_last->object = 
+
+#define CC_List_static_append(_type)                        \
     CC_List_last->next = malloc(sizeof(struct CC_ccll));    \
     CC_List_last = CC_List_last->next;                      \
     CC_List_last->type = _type;                             \

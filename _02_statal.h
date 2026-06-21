@@ -9,17 +9,6 @@
 
 #include "_01_non_statal.h"
 
-// typedef avsme (* STATE_charclass_type)(char _char);
-
-// struct STATE_charclass_view {
-//     STATE_charclass_type function;
-//     char * iden;
-// } STATE_charclass_active;
-
-// #define STATE_charclass_set(name)                                                   \
-//     char mergetokens(STATE_charclass_, name, _iden)[] = #name;                      \
-//     STATE_charclass_active = { name, mergetokens(STATE_charclass_, name, _iden) };
-
 struct VLU_VLU_view {
     avsme * table;
     char * iden;
