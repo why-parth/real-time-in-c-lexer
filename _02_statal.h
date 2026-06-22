@@ -9,6 +9,38 @@
 
 #include "_01_non_statal.h"
 
+#ifdef DYNAMIC_CHARCLASS
+
+#define CC_Type_CHARCLASS 1
+
+typedef avsme (* CHARCLASS_type)(char _char);
+
+struct CHARCLASS_charclass_view {
+    char * iden;
+    avsme (* function)(char _char);
+};
+
+void CC_ccast_charclass_ASCII_function(struct CHARCLASS_charclass_view _charclass);
+
+#define dynamic_charclass(_charclass) CHARCLASS_active = _charclass
+
+extern avsme (* CHARCLASS_active)(char _char);
+extern avsme * CHARCLASS_charclass_active;
+
+#define charclass(c) CHARCLASS_active(c)
+
+avsme CHARCLASS_none_active(char _char);
+
+#define CC_append_dynamic_charclass(_charclass)                                         \
+    char mergetokens(CHARCLASS_, _charclass, _name)[] = #_charclass;                    \
+    struct CHARCLASS_charclass_view mergetokens(CHARCLASS_, _charclass, _view) = {      \
+        mergetokens(CHARCLASS_, _charclass, _name),                                     \
+        _charclass                                                                      \
+    };                                                                                  \
+    CC_List_append(1) &mergetokens(CHARCLASS_, _charclass, _view)
+
+#endif
+
 struct VLU_VLU_view {
     avsme * table;
     char * iden;
@@ -41,11 +73,12 @@ struct VLU_VLU_view {
 
 #define VLU_PUSH_KEY(name)			    __VLU_PUSH_KEY(name) =
 
-#define __VLU_PUSH_VALUE(name, i_key)  \
+#define __VLU_PUSH_VALUE(name, i_key)   \
     name.table[                         \
         name.n_keys * name.max_values   \
         + ++(name.table[i_key][1]) + 1  \
     ]
+
 #define VLU_PUSH_VALUE(name, i_key)	__VLU_PUSH_VALUE(name, i_key) =
 
 #endif

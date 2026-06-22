@@ -23,6 +23,24 @@ hash hash_function_fnv(char * str) {
 
 #endif
 
+
+#if defined(_INC_V_STATAL) && !defined(_IMPL_V_STATAL)
+#define _IMPL_V_STATAL
+
+#ifdef DYNAMIC_CHARCLASS
+
+avsme CHARCLASS_none_active(char _char) {
+    printf("\033[31m<! No active Char Class. !>\033[0m");
+    exit(-1);
+}
+
+avsme (* CHARCLASS_active)(char _char) = CHARCLASS_none_active;
+
+#endif
+
+#endif
+
+
 #if defined(_INC_V_COLLECT)  && defined(_INIT_V_COLLECT) && !defined(_IMPL_V_COLLECT)
 #define _IMPL_V_COLLECT
 
@@ -1015,6 +1033,32 @@ void CC_ccast_charclass_ASCII(void) {
 
 }
 
+#ifdef DYNAMIC_CHARCLASS
+
+void CC_ccast_charclass_ASCII_function(struct CHARCLASS_charclass_view _charclass) {
+
+    VS_OFF_CHARCLASS_ERR = 1;
+
+    avsme _char_class;
+
+    printf("avsme STATE_charclass_%s_table[128] = {\n\t", _charclass.iden);
+
+    for (int i = 0; i < 128; i++) {
+
+        _char_class = _charclass.function(i);
+        printf("0X%.6x%c ", (AVSME_EXISTENT(_char_class)) ? _char_class : 0, ','*(i!=127));
+
+        if (!((i + 1)%10)) printf("\n\t");
+    }
+
+    printf("\n};");
+
+    VS_OFF_CHARCLASS_ERR = 0;
+
+}
+
+#endif
+
 void CC_ccast_VLU(struct VLU_VLU_view _VLU) {
 
     int x = 0;
@@ -1042,7 +1086,16 @@ void CC_ccast_VLU(struct VLU_VLU_view _VLU) {
 
     printf("}; ");
 
-    printf("struct VLU_vlu_veiw %s = {", _name);
+    struct VLU_VLU_view {
+    avsme * table;
+    char * iden;
+    size_t n_keys;
+    size_t n_values;
+    size_t max_keys;
+    size_t max_values;
+};
+
+    printf("struct VLU_VLU_view %s = {", _name);
     printf(" %d,", _VLU.n_keys);
     printf(" %d,", _VLU.n_values);
     printf(" %d,", _VLU.max_keys);
@@ -1055,7 +1108,14 @@ void CC_ccast(void) {
 
     CC_Link Curr = CC_List;
 
+    #ifdef DYNAMIC_CHARCLASS
+    printf("\n#define charclass(c) (CHARCLASS_active[c])");
+    printf("\navsme * CHARCLASS_charclass_active;");
+    printf("\n#undef dynamic_charclass ");
+    printf("\n#define dynamic_charclass(_charclass) CHARCLASS_charclass_active = mergetokens(STATE_charclass_, _charclass, _table)");
+    #else
     CC_ccast_charclass_ASCII();
+    #endif
 
     putchar('\n');
 
@@ -1063,6 +1123,18 @@ void CC_ccast(void) {
 
         switch (Curr->type)
         {
+        
+        #ifdef DYNAMIC_CHARCLASS
+        
+        case 1:
+            putchar('\n');
+            struct CHARCLASS_charclass_view _charclass = *((struct CHARCLASS_charclass_view *)(Curr->object));
+            CC_ccast_charclass_ASCII_function(_charclass);
+            putchar('\n');
+            break;
+
+        #endif
+
         case 2:
             putchar('\n');
             struct VLU_VLU_view _VLU = *((struct VLU_VLU_view *)(Curr->object));

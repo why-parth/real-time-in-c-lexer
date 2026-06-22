@@ -100,11 +100,12 @@ CC_Link CC_List_last = &CC_base;
     CC_List_last->next = NULL;                              \
     CC_List_last->object = 
 
-#define CC_List_static_append(_type)                        \
-    CC_List_last->next = malloc(sizeof(struct CC_ccll));    \
-    CC_List_last = CC_List_last->next;                      \
-    CC_List_last->type = _type;                             \
-    CC_List_last->next = NULL;                              \
+#define CC_List_static_append(_type)                                        \
+    mergetoken(CC_List_static_variable_, __LINE__);                         \
+    CC_List_last->next = &mergetoken(CC_List_static_variable_, __LINE__);   \
+    CC_List_last = CC_List_last->next;                                      \
+    CC_List_last->type = _type;                                             \
+    CC_List_last->next = NULL;                                              \
     CC_List_last->object = 
 
 #endif
