@@ -3,7 +3,7 @@
 #ifndef _INC_V_CIMPL
 #define _INC_V_CIMPL
 
-#include "_05_fileio.h"
+#include "_06_ccast.h"
 
 extern hash CIMPL_tkn_include;
 extern hash CIMPL_tkn_define;
@@ -23,6 +23,10 @@ extern hash CIMPL_tkn_pragma;
 extern hash CIMPL_tkn_if;
 extern hash CIMPL_tkn_elif;
 extern hash CIMPL_tkn_else;
+
+/*
+Add the CCast appends to each token_list and introduce #define CIMPL_CCAST
+*/ 
 
 #define Enable_C_Token_Lists                        \
     \
@@ -45,16 +49,26 @@ extern hash CIMPL_tkn_else;
     CIMPL_tkn_elif = hash_function("elif");                   \
     CIMPL_tkn_else = hash_function("else");                   \
     \
-    enable_token_list(DataTypes);                \
-    enable_token_list(StorageClasses);           \
-    enable_token_list(TypeQualifiers);           \
-    enable_token_list(Controls);                 \
-    enable_token_list(Structures);               \
-    enable_token_list(Specifiers);               \
-    enable_token_list(CompileTimeOperators);     \
-    enable_token_list(Assertion);                \
-    enable_token_list(Pre_Processor_Commands);   \
-    enable_token_list(Pre_Processor_Operators)   \
+    enable_token_list(DataTypes);                       \
+    CC_append_tokenlist_static(DataTypes);              \
+    enable_token_list(StorageClasses);                  \
+    CC_append_tokenlist_static(StorageClasses);         \
+    enable_token_list(TypeQualifiers);                  \
+    CC_append_tokenlist_static(TypeQualifiers);         \
+    enable_token_list(Controls);                        \
+    CC_append_tokenlist_static(Controls);               \
+    enable_token_list(Structures);                      \
+    CC_append_tokenlist_static(Structures);             \
+    enable_token_list(Specifiers);                      \
+    CC_append_tokenlist_static(Specifiers);             \
+    enable_token_list(CompileTimeOperators);            \
+    CC_append_tokenlist_static(CompileTimeOperators);   \
+    enable_token_list(Assertion);                       \
+    CC_append_tokenlist_static(Assertion);              \
+    enable_token_list(Pre_Processor_Commands);          \
+    CC_append_tokenlist_static(Pre_Processor_Commands); \
+    enable_token_list(Pre_Processor_Operators);         \
+    CC_append_tokenlist_static(Pre_Processor_Operators)
 
 #define CIMPL_Colorise_Red                            color_fore(240, 100, 100)
 #define CIMPL_Colorise_High_Red       style_bold   ,  color_fore(240, 180, 150)
@@ -88,8 +102,8 @@ extern int64_t CIMPL_scope_count;
 extern hash CIMPL_in_quotes;
 extern hash CIMPL_this_quote;
 
-#define CIMPL_Colorise_Quot                                                     \
-    if (!CIMPL_in_quotes) {CIMPL_in_quotes = hash_value; CIMPL_Colorise_Yellow;}   \
+#define CIMPL_Colorise_Quot                                                         \
+    if (!CIMPL_in_quotes) {CIMPL_in_quotes = hash_value; CIMPL_Colorise_Yellow;}    \
     else if token_is(CIMPL_in_quotes) CIMPL_in_quotes = 0
 
 #define CIMPL_Colorise_C_Tokens                                                     \

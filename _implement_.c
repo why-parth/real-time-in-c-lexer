@@ -21,6 +21,63 @@ hash hash_function_fnv(char * str) {
     return hash;
 }
 
+hash * TL_enable_buffer;
+size_t TL_enable_i;
+size_t TL_enable_max;
+
+char TL_token_list_static_search(hash * _buffer, size_t _size, hash _search) {
+    for (int i = 0; i < _size; i++) if (_buffer[i] == _search) return 1;
+    return 0;
+}
+
+char TL_token_list_dynamic_search(struct TL_hash_link _buffer, size_t _size, hash _search) {
+    struct TL_hash_link * _first = _buffer.next;
+    for (int i = 0; (i < _size) &&  _first; i++) {
+        if (_first->value == _search) return 1;
+        _first = _first->next;
+    }
+    return 0;
+}
+
+void TL_free_token_list(struct TL_hash_link * _first) {
+    for (struct TL_hash_link * to_free; _first;) {
+        _first = _first->next;
+        to_free = _first;
+        free(to_free);
+    }
+}
+
+void CC_ccast_token_list_static(hash * _buffer, size_t _size, char * _iden) {
+    printf("\nchar TL_%s_type = 0;\n", _iden);
+    printf("char * TL_%s_iden = \"%s\";\n", _iden, _iden);
+    printf("size_t TL_%s_size = %zu;\n", _iden, _size);
+    printf("hash TL_%s_buffer[%zu] = {\n\t", _iden, _size);
+    for (int i = 0; i < _size; i++) {
+        printf("%zuULL", _buffer[i]);
+        if ((i + 1) != _size) printf(", ");
+        else printf("\n");
+        if ((i + 1) % 4 == 0) printf("\n\t");
+    }
+    printf("};");
+}
+
+void CC_ccast_token_list_dynamic(struct TL_hash_link _buffer, size_t _size, char * _iden) {
+    printf("\nchar TL_%s_type = 0;\n", _iden);
+    printf("char * TL_%s_iden = \"%s\";\n", _iden, _iden);
+    printf("size_t TL_%s_size = %zu;\n", _iden, _size);
+    printf("hash TL_%s_buffer[%zu] = {\n\t", _iden, _size);
+    struct TL_hash_link * _first = _buffer.next;
+    for (int i = 0; i < _size; i++) {
+        if (!_first) return;
+        printf("%zuULL", _first->value);
+        if ((i + 1) != _size) printf(", ");
+        else printf("\n");
+        if ((i + 1) % 4 == 0) printf("\n\t");
+    }
+    printf("};");
+}
+
+
 #endif
 
 
@@ -378,49 +435,6 @@ size_t print_str_collective_variation (
 
 #if defined(_INC_V_DSL) && defined(_INIT_V_DSL) && !defined(_IMPL_V_DSL)
 #define _IMPL_V_DSL
-
-size_t VCo_enable_i = 0;
-hash * VCo_recent_set = NULL;
-
-int VCo_search_set(hash * _set, size_t _size) {
-    for (int i = 0; i < _size; i++) if token_is(_set[i]) return 1;
-    return 0;
-}
-
-struct VCo_hash_link * VCo_new_hash_link(hash _token) {
-    struct VCo_hash_link * ret = malloc(sizeof(struct VCo_hash_link));
-    ret->value = _token;
-    ret->next = NULL;
-    return ret;
-}
-
-void VCo_free_hash_links(struct VCo_hash_link * _hash_link) {
-    if (!_hash_link) return;
-    struct VCo_hash_link * current = _hash_link;
-    struct VCo_hash_link * to_free;
-
-    while (current->next) {
-        to_free = current;
-        current = current->next;
-        free(to_free);
-    }
-    free(current);
-}
-
-size_t VCo_search_hash_list(struct VCo_hash_link * _links, hash _token, ...) {
-    if (!_links) return 0;
-    size_t ret = 1;
-
-    struct VCo_hash_link * curr = _links;
-
-    while (curr->value != _token) {
-        if (!curr->next) return 0;
-        curr = curr->next;
-        ret++;
-    }
-
-    return ret;
-}
 
 char * __recent_charclass_extend_esc_str = NULL;
 char __charclass_extend_esc_n[4] = "\\n";
@@ -1059,12 +1073,47 @@ void CC_ccast_charclass_ASCII_function(struct CHARCLASS_charclass_view _charclas
 
 #endif
 
-void CC_ccast_VLU(struct VLU_VLU_view _VLU) {
+void CC_ccast_VLU(void) {
+    int x = 0;
+
+    printf("avsme STATE_VLU_table[%zu] = {\n", VS_active_VLU_n_keys*VS_active_VLU_stride);
+
+    for (int y = 0; y < VS_active_VLU_n_keys; y++) {
+        
+        printf("    %zu, %zu",
+            VS_active_VLU_table[y *VS_active_VLU_stride],
+            VS_active_VLU_table[y *VS_active_VLU_stride + 1]
+        );
+
+        for (x = 0; x < VS_active_VLU_table[y *VS_active_VLU_stride + 1]; x++)
+        printf(", %zu", VS_active_VLU_table[y*VS_active_VLU_stride + 2 + x]);
+
+        for (; x < VS_active_VLU_stride; x++)
+        printf(", 0");
+
+        if (y + 1 != VS_active_VLU_n_keys) putchar(',');
+        putchar('\n');
+    }
+
+    printf("}; ");
+
+    printf("struct VLU_VLU_view STATE_VLU = {");
+    printf(" STATE_VLU_table");
+    printf(" STATE_VLU,");
+    printf(" %d,", VS_active_VLU_n_keys);
+    printf(" %d,", VS_active_VLU_stride);
+    printf(" %d,", VS_active_VLU_n_keys);
+    printf(" %d };", VS_active_VLU_stride);
+
+}
+
+void CC_ccast_VLU_function(struct VLU_VLU_view _VLU) {
 
     int x = 0;
 
     char * _name = _VLU.iden;
 
+    printf("char VLU_%s_iden[] = \"%s\";\n", _name, _name);
     printf("avsme VLU_%s_table[%zu] = {\n", _name, _VLU.max_keys*(2 + _VLU.max_values));
 
     for (int y = 0; y < _VLU.n_keys; y++) {
@@ -1086,23 +1135,54 @@ void CC_ccast_VLU(struct VLU_VLU_view _VLU) {
 
     printf("}; ");
 
-    struct VLU_VLU_view {
-    avsme * table;
-    char * iden;
-    size_t n_keys;
-    size_t n_values;
-    size_t max_keys;
-    size_t max_values;
-};
-
     printf("struct VLU_VLU_view %s = {", _name);
+    printf(" VLU_%s_table,", _name);
+    printf(" VLU_%s_iden,", _name);
     printf(" %d,", _VLU.n_keys);
     printf(" %d,", _VLU.n_values);
     printf(" %d,", _VLU.max_keys);
-    printf(" %d,", _VLU.max_values);
-    printf(" VLU_%s_table };", _name);
+    printf(" %d };", _VLU.max_values);
 
 }
+
+// void CC_ccast_tokenlist_static(struct DSL_tokenlist_view _list) {
+
+//     size_t len = _list.list.static_list.size;
+//     printf("size_t VCo_enable_%s_size = %d;\n", _list.iden, len);
+//     printf("hash %s[%d] =  {\n\t", _list.iden, len);
+
+//     hash curr = 0;
+
+//     for (int i = 0; (i < len) && printf("%c%c", i ? ',' : '\0', i ? ' ' : '\0'); i++) {
+//         if ((i + 1)%5 == 0) printf("\n\t");
+        
+//         printf("%zuULL", hash_of(_list.list.static_list.buffer[i]));
+//     }
+
+//     putchar('\n');
+//     putchar('}');
+//     putchar(';');
+// }
+
+// void CC_ccast_tokenlist_dynamic(struct DSL_tokenlist_view _list) {
+
+//     size_t len = _list.list.dynamic_list.size;
+//     printf("size_t VCo_enable_%s_size = %d;\n", _list.iden, len);
+//     printf("hash %s[%d] =  {\n\t", _list.iden, len);
+
+//     struct VCo_hash_link * curr = _list.list.dynamic_list.buffer;
+
+//     for (int i = 0; (i < len) && printf("%c%c", i ? ',' : '\0', i ? ' ' : '\0'); i++) {
+//         if ((i + 1)%9 == 0) printf("\n\t");
+        
+//         printf("%zuULL", hash_of(curr->value));
+//         curr = curr->next;
+//     }
+
+//     putchar('\n');
+//     putchar('}');
+//     putchar(';');
+// }
 
 void CC_ccast(void) {
 
@@ -1138,12 +1218,26 @@ void CC_ccast(void) {
         case 2:
             putchar('\n');
             struct VLU_VLU_view _VLU = *((struct VLU_VLU_view *)(Curr->object));
-            CC_ccast_VLU(_VLU);
+            CC_ccast_VLU_function(_VLU);
             putchar('\n');
             break;
         
+        // case 3:
+        //     putchar('\n');
+        //     struct DSL_tokenlist_view static_list = *((struct DSL_tokenlist_view *)(Curr->object));
+        //     CC_ccast_tokenlist_static(static_list);
+        //     putchar('\n');
+        //     break;
+
+        // case 4:
+        //     putchar('\n');
+        //     struct DSL_tokenlist_view dynamic_list = *((struct DSL_tokenlist_view *)(Curr->object));
+        //     CC_ccast_tokenlist_dynamic(dynamic_list);
+        //     putchar('\n');
+        //     break;
+        
         default:
-            printf("Not a valid CC_Link type");
+            printf("\033[31m<! Not a valid CC_Link type. !>\033[0m");
         }
 
     }
