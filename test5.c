@@ -5,16 +5,21 @@
 #include "_implement_.c"
 
 
-token_list(DATA_TYPES, 10) (
+char TL_FUNCTIONS_type = 0;
+char * TL_FUNCTIONS_iden = "FUNCTIONS";
+size_t TL_FUNCTIONS_size = 1;
+hash TL_FUNCTIONS_buffer[1] = {
+        14274269514499928794ULL
+};
 
-    token_append() ("int");
-    token_append() ("char");
-    token_append() ("float");
-
-)
-
-
-token_list(FUNCTIONS);
+char TL_DATA_TYPES_type = 0;
+char * TL_DATA_TYPES_iden = "DATA_TYPES";
+size_t TL_DATA_TYPES_size = 10;
+hash TL_DATA_TYPES_buffer[10] = {
+        0ULL, 0ULL, 0ULL, 0ULL, 
+        0ULL, 0ULL, 0ULL, 0ULL, 
+        0ULL, 0ULL
+};
 
 
 
@@ -65,15 +70,18 @@ int main (void) {
 
 
 
-    token_append(FUNCTIONS) ("main");
+    // token_append(FUNCTIONS) ("main");
     // token_append(FUNCTIONS) ("printf");
     // token_append(FUNCTIONS) ("scanf");
 
     // CC_ccast_token_list(DATA_TYPES);
 
-    CC_List_append(CC_Type_token_list(DATA_TYPES)) ; 
+
 
     // TL_token_list_view_of(DATA_TYPES);
+
+    CC_ccast_token_list(FUNCTIONS);
+    CC_ccast_token_list(DATA_TYPES);
 
 
 

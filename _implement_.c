@@ -58,7 +58,7 @@ void CC_ccast_token_list_static(hash * _buffer, size_t _size, char * _iden) {
         else printf("\n");
         if ((i + 1) % 4 == 0) printf("\n\t");
     }
-    printf("};");
+    printf("};\n");
 }
 
 void CC_ccast_token_list_dynamic(struct TL_hash_link _buffer, size_t _size, char * _iden) {
@@ -74,7 +74,7 @@ void CC_ccast_token_list_dynamic(struct TL_hash_link _buffer, size_t _size, char
         else printf("\n");
         if ((i + 1) % 4 == 0) printf("\n\t");
     }
-    printf("};");
+    printf("};\n");
 }
 
 

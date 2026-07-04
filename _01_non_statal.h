@@ -87,6 +87,15 @@ struct TL_hash_link {
     struct TL_hash_link * next;
 };
 
+#define CC_Type_token_list_static 3
+
+#define CC_Type_token_list_dynamic 4
+
+#define TL_token_list_view_0 struct TL_token_list_static_view
+#define TL_token_list_view_ struct TL_token_list_dynamic_view
+
+#define CC_Type_token_list(_name) _Generic( TL_TOKENLIST_BUFFER(_name), struct TL_hash_link : 4, default : 3 ) 
+
 #define TL_TOKENLIST_TYPE(_name) mergetokens(TL_, _name, _type)
 #define TL_TOKENLIST_IDEN(_name) mergetokens(TL_, _name, _iden)
 #define TL_TOKENLIST_SIZE(_name) mergetokens(TL_, _name, _size)
@@ -96,9 +105,9 @@ struct TL_hash_link {
 
 // This macro partially declares the token list
 // Type, Iden, Size, all of these are stored statically.
-#define TL_token_list_decl__(_name, ...)							\
-char TL_TOKENLIST_TYPE(_name) = !(0 __VA_OPT__(+ 1));					\
-char TL_TOKENLIST_IDEN(_name)[] = #_name;							\
+#define TL_token_list_decl_(_name, ...)							\
+char TL_TOKENLIST_TYPE(_name) = !(0 __VA_OPT__(+ 1));			\
+char TL_TOKENLIST_IDEN(_name)[] = #_name;						\
 size_t TL_TOKENLIST_SIZE(_name) = 0 __VA_OPT__(+ __VA_ARGS__)
 
 // These (2) macro completes the declarataion
@@ -114,12 +123,24 @@ __mergetoken(TL_token_list_type_exception_, __VA_OPT__(0))(__VA_ARGS__)
 
 // This macro completely declares the token list
 #define TL_token_list_decl(_name, ...)		            \
-TL_token_list_decl__(_name, __VA_ARGS__);		        \
+TL_token_list_decl_(_name, __VA_ARGS__);		        \
                                                         \
 TL_token_list_type(__VA_ARGS__)				            \
 TL_TOKENLIST_BUFFER(_name)				                \
 TL_token_list_type_exception(__VA_ARGS__)
 
+
+#define CC_ccast_token_list(_name)                     \
+_Generic(                                               \
+    TL_TOKENLIST_BUFFER(_name),                         \
+    struct TL_hash_link : CC_ccast_token_list_dynamic,  \
+    default : CC_ccast_token_list_static                \
+)                                                       \
+(                                                       \
+    TL_TOKENLIST_BUFFER(_name),                         \
+    TL_TOKENLIST_SIZE(_name),                           \
+    TL_TOKENLIST_IDEN(_name)                            \
+)
 
 // STATIC
 
@@ -192,25 +213,14 @@ TL_free_token_list(TL_TOKENLIST_BUFFER(_name).next);    \
 TL_TOKENLIST_BUFFER(_name).next = NULL;                 \
 TL_TOKENLIST_LAST(_name) = NULL
 
-// C Cast Init
 
-union TL_token_list_buffer {
-    hash static_buffer;
-    struct TL_hash_link dynamic_buffer;
-};
 
-struct TL_token_list_view {
-    char type;
-    char * iden;
-    size_t size;
-    union TL_token_list_buffer buffer;
-};
-
-#define CC_Type_token_list(_name) _Generic( TL_TOKENLIST_BUFFER(_name), struct TL_hash_link : 4, default : 3 )
 
 void CC_ccast_token_list_static(hash * _buffer, size_t _size, char * _iden);
 
 void CC_ccast_token_list_dynamic(struct TL_hash_link _buffer, size_t _size, char * _iden);
+
+
 
 
 // Data Structure : CCast's Linked List (CC_ccll)
