@@ -1,8 +1,7 @@
-#include <stdlib.h>
-#include "_06_ccast.h"
+#include "vlex\std.h"
+#include "vlex\std.c"
 
-#include "_initialize_.h"
-#include "_implement_.c"
+
 
 
 char TL_FUNCTIONS_type = 0;
@@ -126,6 +125,8 @@ int main (void) {
         
     //     printf("<LIST>");
 
+
+    printf("all good");
     // }
 
 

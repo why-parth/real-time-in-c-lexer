@@ -1,5 +1,4 @@
-#if defined(_INC_V_NON_STATAL) && !defined(_IMPL_V_NON_STATAL)
-#define _IMPL_V_NON_STATAL
+#if defined(__INC_STDV)
 
 avsme AVSME_NONE = AVSME_SET(AVSME_EXISTS, ASCII, 0);
 avsme AVSME_TRUE = AVSME_SET(AVSME_EXISTS, ASCII, 1);
@@ -76,12 +75,6 @@ void CC_ccast_token_list_dynamic(struct TL_hash_link _buffer, size_t _size, char
     printf("};\n");
 }
 
-#endif
-
-
-#if defined(_INC_V_STATAL) && !defined(_IMPL_V_STATAL)
-#define _IMPL_V_STATAL
-
 #ifdef DYNAMIC_CHARCLASS
 
 avsme CHARCLASS_none_active(char _char) {
@@ -92,12 +85,6 @@ avsme CHARCLASS_none_active(char _char) {
 avsme (* CHARCLASS_active)(char _char) = CHARCLASS_none_active;
 
 #endif
-
-#endif
-
-
-#if defined(_INC_V_COLLECT)  && defined(_INIT_V_COLLECT) && !defined(_IMPL_V_COLLECT)
-#define _IMPL_V_COLLECT
 
 struct collect_out COLLECT_OUT_NULL = {AVSME_NULL, NULL, NULL};
 struct collect_out COLLECT_OUT = {AVSME_NULL, NULL, NULL};
@@ -399,12 +386,6 @@ size_t print_str_collective_variation (
     collect_variation_in(NULL, 0, NULL, 0);
     return ret;
 }
-
-#endif
-
-
-#if defined(_INC_V_DSL) && defined(_INIT_V_DSL) && !defined(_IMPL_V_DSL)
-#define _IMPL_V_DSL
 
 char * __recent_charclass_extend_esc_str = NULL;
 char __charclass_extend_esc_n[4] = "\\n";
@@ -719,23 +700,11 @@ void __VS_VLU_print   (
     }
 }
 
-#endif
-
-
-#if defined(_INC_V_FILEIO) && !defined(_IMPL_V_FILEIO)
-#define _IMPL_V_FILEIO
-
 FILE * RW_recent_open = NULL;
 
 RW_init_Reader
 
 RW_init_Writer
-
-#endif
-
-
-#if defined(_INC_V_CCAST) && !defined(_IMPL_V_CCAST)
-#define _IMPL_V_CCAST
 
 void CC_ccast_charclass_ASCII(void) {
 
@@ -784,8 +753,6 @@ void CC_ccast_charclass_ASCII_function(struct CHARCLASS_charclass_view _charclas
     VS_OFF_CHARCLASS_ERR = 0;
 
 }
-
-#endif
 
 void CC_ccast_VLU(void) {
     int x = 0;
@@ -904,5 +871,7 @@ void CC_ccast(void) {
     }
 
 }
+
+#endif
 
 #endif

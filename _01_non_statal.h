@@ -213,14 +213,9 @@ TL_free_token_list(TL_TOKENLIST_BUFFER(_name).next);    \
 TL_TOKENLIST_BUFFER(_name).next = NULL;                 \
 TL_TOKENLIST_LAST(_name) = NULL
 
-
-
-
 void CC_ccast_token_list_static(hash * _buffer, size_t _size, char * _iden);
 
 void CC_ccast_token_list_dynamic(struct TL_hash_link _buffer, size_t _size, char * _iden);
-
-
 
 
 // Data Structure : CCast's Linked List (CC_ccll)
